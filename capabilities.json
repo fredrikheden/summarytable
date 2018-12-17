@@ -1,0 +1,32 @@
+{
+    "dataRoles": [
+        {
+            "displayName": "Category Data",
+            "name": "values",
+            "kind": "GroupingOrMeasure"
+        }
+    ],
+    "advancedEditModeSupport": 2,
+    "objects": {
+        "dataPoint": {
+            "displayName": "Data colors",
+            "properties": {
+                "tableConfiguration" : {
+                    "displayName": "Config",                   
+                    "type": { "text": true}
+                }
+            }
+        }
+    },
+    "dataViewMappings": [
+        {
+            "table": {
+                "rows": {
+                    "for": {
+                        "in": "values"
+                    }
+                }
+            }
+        }
+    ]
+}

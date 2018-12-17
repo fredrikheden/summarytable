@@ -1,0 +1,7 @@
+{
+  "name": "visual",
+  "dependencies": {
+    "powerbi-visuals-utils-dataviewutils": "1.2.0",
+    "powerbi-visuals-utils-formattingutils": "^3.1.0"
+  }
+}

@@ -1,0 +1,75 @@
+@import (less) "node_modules/powerbi-visuals-utils-formattingutils/lib/index.css";
+
+p {
+    font-size: 20px;
+    font-weight: bold;
+    em {
+        background: yellow;
+        padding: 5px;
+    }
+}
+
+
+.tablewrapper {
+    width:100%;
+    background-color: #fff;
+    position: relative;
+    overflow: hidden;
+    font-family: "Segoe UI", wf_segoe-ui_normal, helvetica, arial, sans-serif;
+    font-size: 12px;    
+}
+
+.div-table {
+    display: table;         
+    border: none;
+  }
+  .div-table-row-header {
+    display: table-row;
+    width: auto;
+    clear: both;
+  }
+.div-table-row {
+    display: table-row;
+    width: auto;
+    clear: both;
+    background-color: #fff;
+  }
+  .div-table-row:hover {
+      background-color: #eee;
+  }
+  .div-table-col {
+    float: left; /* fix for  buggy browsers */
+    display: table-column;         
+  }
+  .div-table-col-number {
+    float: left; /* fix for  buggy browsers */
+    display: table-column;         
+    text-align: right;
+  }
+  .table-cell-content {
+      padding-top:2px;
+      padding-bottom:2px;
+      padding-right:4px;
+      padding-left:4px;
+  }
+
+
+.TextCodeBox {
+    width: 100%;
+    height: 45%;
+    word-break: break-word;
+    overflow-y: auto;
+    font-family: monospace;
+    white-space: pre-wrap;
+    resize: none;
+    max-width: none;
+    background-color:#000;
+    color: #fff;
+    white-space: pre;
+}
+
+.TextCodeBoxSample {
+    background-color:#eee;
+    color: #333;
+    white-space: pre;
+}
