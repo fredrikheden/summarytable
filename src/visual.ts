@@ -1,6 +1,7 @@
 // TODO: Cross-filter
 // TODO: Kunna välja mellan olika templates (som bara applicerar styles)
 // TODO: Felhantering
+// TODO: Hantera NULL/Infinity-värden => visa blank sträng istället.
 
 // Format %: 0.0 %;-0.0 %;0.0 %               #,0
 // Format number: #,0
