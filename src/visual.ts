@@ -1,6 +1,6 @@
-// TODO: Kunna tvinga en formatering om man angivit en (istället för den som är default)
 // TODO: Cross-filter
 // TODO: Kunna välja mellan olika templates (som bara applicerar styles)
+// TODO: Felhantering
 
 // Format %: 0.0 %;-0.0 %;0.0 %               #,0
 // Format number: #,0
@@ -46,7 +46,7 @@ module powerbi.extensibility.visual {
         for( var i = 0; i < dataViews[0].table.rows.length; i++) {
             var r = dataViews[0].table.rows[i];
             var colData  = [];
-            for(var t = 1; t<r.length; t++) {
+            for(var t = 0; t<r.length; t++) {
                 var rawValue =  r[t];
                 var formatString =  dataViews[0].table.columns[t].format;
                 var columnName =  dataViews[0].table.columns[t].displayName;
@@ -59,6 +59,7 @@ module powerbi.extensibility.visual {
             };
             tblData.push(row);
         }
+        console.log(tblData);
         return tblData;
      }     
 
@@ -274,6 +275,7 @@ module powerbi.extensibility.visual {
                 } else {
                     j1 = j1.replace(/%TITLECOLNAME%/g, col.displayName);
                     j1 = j1.replace(/%COLTYPE%/g, 'Data');                  
+                    j1 = j1.replace(/%ROWSTYLE%/g, '');
                 }
                 j1 = j1.replace(/%REFNAME%/g, col.refName);
                 colJson += j1;
@@ -315,7 +317,7 @@ module powerbi.extensibility.visual {
             this.editModeJsonEditor.value = fullJson;
         }
 
-        private GetValueForColumnRowCalculationByIndex(row:any, colIndex: number) : any {
+        private GetValueForColumnRowCalculationByIndex(row:any, colIndex: number, colDef: any) : any {
             var rawValue = 0;
             for(var i=0; i<this.model.length; i++) {
                 if ( row.formula !== null && this.model[i].name !== null) {
@@ -337,11 +339,15 @@ module powerbi.extensibility.visual {
                 }
             }
             var format = this.model[0].values[colIndex].formatString;
+            if ( colDef.format.length > 0 ) {
+                format = colDef.format;
+            }
             var formattedValue = valueFormatter.format(rawValue, format);
             return { formattedValue: formattedValue, rawValue: rawValue };
         }
 
-        private GetValueForColumnRowCalculationByName(row:any, colNameWithBrackets: string) : any {
+        private GetValueForColumnRowCalculationByName(row:any, colDef: any) : any {
+            var colNameWithBrackets = colDef.refName;
             var rawValue = 0;
             var colIndex = -1;
             for(var i=0; i<this.model[0].values.length; i++) {
@@ -352,7 +358,7 @@ module powerbi.extensibility.visual {
             }
             var retValue = null;
             if ( colIndex !== -1 ) {
-                retValue = this.GetValueForColumnRowCalculationByIndex(row, colIndex);
+                retValue = this.GetValueForColumnRowCalculationByIndex(row, colIndex, colDef);
             }
             return retValue;
         }
@@ -409,28 +415,35 @@ module powerbi.extensibility.visual {
                 var row = tableDefinition.rows[r];
                 if ( row.visible ) {
                     var rowHtml = "<div class='div-table-row' style='"+row.rowStyle+"'>";
-                    for(var c=0; c<tableDefinition.columns.length; c++) {
-                        var col = tableDefinition.columns[c];
-                        var renderValue = "";
-                        var rowStyle = "width:" + col.width + "px;" +  col.rowStyle;
-                        var cellRowDataStyle = row.cellRowDataStyle;
-                        if ( col.type === "Data" ) {
-                            // Datakolumners innehåll hämtar vi från modellen direkt.
-                            var v = this.GetValueForColumnRowCalculationByName(row, col.refName);
-                            renderValue = v === null ? "" : v.formattedValue;
+                    if ( row.formula.length > 0 ) {
+                        for(var c=0; c<tableDefinition.columns.length; c++) {
+                            var col = tableDefinition.columns[c];
+                            var renderValue = "";
+                            var rowStyle = "width:" + col.width + "px;" +  col.rowStyle;
+                            var cellRowDataStyle = row.cellRowDataStyle;
+                            if ( col.type === "Data" ) {
+                                // Datakolumners innehåll hämtar vi från modellen direkt.
+                                var v = this.GetValueForColumnRowCalculationByName(row, col);
+                                renderValue = v === null ? "" : v.formattedValue;
+                            } 
+                            else if ( col.type === "RowHeader") {
+                                renderValue = row.title;
+                                cellRowDataStyle = "width:" + col.width + "px;" +  row.cellRowHeaderStyle;
+                            } 
+                            else if ( col.type === "Calculation") {
+                                // Kolumner som baseras på en formeln räknas ut
+                                renderValue = this.GetValueForColumCalculation(row, col);
+                            } 
+                            else {
+                                renderValue = "";
+                            }
+                            var colHtml = "<div class='div-table-col-number' style='" + rowStyle + "'><div class='table-cell-content' style='"+cellRowDataStyle+"'>"+renderValue+"</div></div>";
+                            rowHtml += colHtml;
                         } 
-                        else if ( col.type === "RowHeader") {
-                            renderValue = row.title;
-                            cellRowDataStyle = "width:" + col.width + "px;" +  row.cellRowHeaderStyle;
-                        } 
-                        else if ( col.type === "Calculation") {
-                            renderValue = this.GetValueForColumCalculation(row, col);
-                        } 
-                        else {
-                            renderValue = "";
-                        }
-                        var colHtml = "<div class='div-table-col-number' style='" + rowStyle + "'><div class='table-cell-content' style='"+cellRowDataStyle+"'>"+renderValue+"</div></div>";
-                        rowHtml += colHtml;
+                    }
+                    else {
+                        // Empty row
+                        rowHtml += "<div class='div-table-col-number'><div class='table-cell-content' style='"+row.cellRowDataStyle+"'></div></div>";
                     }
                     rowHtml += "</div>";
                     tableHtml += rowHtml;
