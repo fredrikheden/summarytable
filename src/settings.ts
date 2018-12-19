@@ -30,11 +30,11 @@ module powerbi.extensibility.visual {
 
     export class VisualSettings extends DataViewObjectsParser {
       public dataPoint: dataPointSettings = new dataPointSettings();
-      }
+    }
 
     export class dataPointSettings {
       // Table configuration
       public tableConfiguration: string = "";
-}
+    }
 
 }

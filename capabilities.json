@@ -1,7 +1,7 @@
 {
     "dataRoles": [
         {
-            "displayName": "Category Data",
+            "displayName": "Fields",
             "name": "values",
             "kind": "GroupingOrMeasure"
         }
@@ -9,7 +9,7 @@
     "advancedEditModeSupport": 2,
     "objects": {
         "dataPoint": {
-            "displayName": "Data colors",
+            "displayName": "Settings",
             "properties": {
                 "tableConfiguration" : {
                     "displayName": "Config",                   

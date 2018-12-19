@@ -2,6 +2,7 @@
 // TODO: Kunna välja mellan olika templates (som bara applicerar styles)
 // TODO: Felhantering
 // TODO: Hantera NULL/Infinity-värden => visa blank sträng istället.
+// TODO: Lägg till möjlighet att använda ett expression för att sätta styles.
 
 // Format %: 0.0 %;-0.0 %;0.0 %               #,0
 // Format number: #,0
@@ -60,7 +61,6 @@ module powerbi.extensibility.visual {
             };
             tblData.push(row);
         }
-        console.log(tblData);
         return tblData;
      }     
 
@@ -190,16 +190,12 @@ module powerbi.extensibility.visual {
 
         public RenderEditMode() {
             var btnSave : HTMLButtonElement = document.createElement("input");
-            var btnRender : HTMLButtonElement = document.createElement("input");
             var btnLoadFromFieldList : HTMLButtonElement = document.createElement("input");
             btnSave.type = "button";
             btnSave.value = "Save";
-            btnRender.type = "button";
-            btnRender.value = "Test render";
             btnLoadFromFieldList.type = "button";
             btnLoadFromFieldList.value = "Generate template from field list";
             this.target.appendChild(btnSave);
-            this.target.appendChild(btnRender);
             this.target.appendChild(btnLoadFromFieldList);
             var divContainer : HTMLDivElement = document.createElement("div");
             divContainer.style.height = "100%";
@@ -225,16 +221,18 @@ module powerbi.extensibility.visual {
                 }
             }
             txtJson.onkeyup = function(e){
-                var tableDefTmp = JSON.parse(txtJson.value);
-                that.RenderAllContent(divRenderInEditMode, tableDefTmp);
+                try {
+                    var tableDefTmp = JSON.parse(txtJson.value);
+                    that.RenderAllContent(divRenderInEditMode, tableDefTmp);    
+                } 
+                catch(e) {
+                    divRenderInEditMode.innerHTML = "No valid JSON.";
+                }
             }
             var that = this;
             btnLoadFromFieldList.onclick = function(e) {
                 that.EditModeCreateTemplateFromFieldList();
-            }
-            btnRender.onclick = function(e) {
-                var tableDefTmp = JSON.parse(txtJson.value);
-                that.RenderAllContent(divRenderInEditMode, tableDefTmp);
+                txtJson.onkeyup(null);
             }
             btnSave.onclick = function(e) {
                 that.settings.dataPoint.tableConfiguration = txtJson.value;                
@@ -251,6 +249,9 @@ module powerbi.extensibility.visual {
                 }
                 that.host.persistProperties(propertToChange);
             }
+
+            var tableDefTmp = JSON.parse(txtJson.value);
+            that.RenderAllContent(divRenderInEditMode, tableDefTmp);
         }
 
         private EditModeCreateTemplateFromFieldList() {
@@ -319,7 +320,7 @@ module powerbi.extensibility.visual {
         }
 
         private GetValueForColumnRowCalculationByIndex(row:any, colIndex: number, colDef: any) : any {
-            var rawValue = 0;
+            var rawValue = null;
             for(var i=0; i<this.model.length; i++) {
                 if ( row.formula !== null && this.model[i].name !== null) {
                     var iPos = row.formula.toLowerCase().indexOf( this.model[i].name.toLowerCase() );
@@ -360,6 +361,10 @@ module powerbi.extensibility.visual {
             var retValue = null;
             if ( colIndex !== -1 ) {
                 retValue = this.GetValueForColumnRowCalculationByIndex(row, colIndex, colDef);
+            } else {
+                retValue = {
+                    formattedValue: "(Unknown column)", rawValue: null 
+                }
             }
             return retValue;
         }
@@ -416,6 +421,7 @@ module powerbi.extensibility.visual {
                 var row = tableDefinition.rows[r];
                 if ( row.visible ) {
                     var rowHtml = "<div class='div-table-row' style='"+row.rowStyle+"'>";
+                    var allColumnsAreBlank:boolean = true;
                     if ( row.formula.length > 0 ) {
                         for(var c=0; c<tableDefinition.columns.length; c++) {
                             var col = tableDefinition.columns[c];
@@ -425,7 +431,9 @@ module powerbi.extensibility.visual {
                             if ( col.type === "Data" ) {
                                 // Datakolumners innehåll hämtar vi från modellen direkt.
                                 var v = this.GetValueForColumnRowCalculationByName(row, col);
-                                renderValue = v === null ? "" : v.formattedValue;
+                                allColumnsAreBlank = v.rawValue !== null ? false : allColumnsAreBlank;
+                                //renderValue = v === null ? "" : v.formattedValue;
+                                renderValue = isNaN(Number(v.rawValue)) ? "" : v.formattedValue;
                             } 
                             else if ( col.type === "RowHeader") {
                                 renderValue = row.title;
@@ -434,6 +442,7 @@ module powerbi.extensibility.visual {
                             else if ( col.type === "Calculation") {
                                 // Kolumner som baseras på en formeln räknas ut
                                 renderValue = this.GetValueForColumCalculation(row, col);
+                                allColumnsAreBlank = renderValue.toLowerCase() !== "(blank)" ? false : allColumnsAreBlank;
                             } 
                             else {
                                 renderValue = "";
@@ -447,7 +456,10 @@ module powerbi.extensibility.visual {
                         rowHtml += "<div class='div-table-col-number'><div class='table-cell-content' style='"+row.cellRowDataStyle+"'></div></div>";
                     }
                     rowHtml += "</div>";
-                    tableHtml += rowHtml;
+                    if ( !allColumnsAreBlank || row.formula.length === 0  ) {
+                        tableHtml += rowHtml;
+                    }
+                    
                 }
             } 
             tableHtml += "</div></div>";
@@ -468,7 +480,8 @@ module powerbi.extensibility.visual {
          * 
          */
         public enumerateObjectInstances(options: EnumerateVisualObjectInstancesOptions): VisualObjectInstance[] | VisualObjectInstanceEnumerationObject {
-            return VisualSettings.enumerateObjectInstances(this.settings || VisualSettings.getDefault(), options);
+            //return VisualSettings.enumerateObjectInstances(this.settings || VisualSettings.getDefault(), options);
+            return [];
         }
     }
 }
