@@ -1,8 +1,8 @@
 // TODO: Cross-filter
 // TODO: Kunna välja mellan olika templates (som bara applicerar styles)
 // TODO: Felhantering
-// TODO: Hantera NULL/Infinity-värden => visa blank sträng istället.
 // TODO: Lägg till möjlighet att använda ett expression för att sätta styles.
+// TODO: Separat style för hover-effekt på radnivå.
 
 // Format %: 0.0 %;-0.0 %;0.0 %               #,0
 // Format number: #,0
@@ -38,7 +38,6 @@ module powerbi.extensibility.visual {
     //function visualTransform(options: VisualUpdateOptions, host: IVisualHost, thisRef: Visual): VisualViewModel {            
     function visualTransform(options: VisualUpdateOptions, thisRef: Visual) : any {            
         let dataViews = options.dataViews;
-
         var a = options.dataViews[0].metadata.columns[1];
 
         let tblView = dataViews[0].table;
@@ -157,6 +156,8 @@ module powerbi.extensibility.visual {
         }
 
         public update(options: VisualUpdateOptions) {
+            var w = options.viewport.width;
+            var h = options.viewport.height;
             this.settings = Visual.parseSettings(options && options.dataViews && options.dataViews[0]);
             this.model  = visualTransform(options, this);
             this.tableDefinition = null;
@@ -180,6 +181,7 @@ module powerbi.extensibility.visual {
                     this.target.innerHTML = "<div>"+errorMsg+"</div>"
                 }
             }
+            this.target.style.overflow = "auto";
         }
 
         public RenderNoContentText() {
@@ -404,12 +406,21 @@ module powerbi.extensibility.visual {
             return resultFormatted;
         }
 
+        private getTableTotalWidth(tableDefinition: any):number {
+            var w = 0;
+            for(var c=0; c<tableDefinition.columns.length; c++) {
+                w += tableDefinition.columns[c].width;
+            }
+            return w;
+        }
+
         private RenderAllContent(targetElement: HTMLElement, tableDefinition: any) {
             if ( tableDefinition === null ) {
                 this.RenderNoContentText();
                 return;
-            }    
-            var tableHtml = "<div class='tablewrapper'><div class='div-table'>";
+            }
+            var w = this.getTableTotalWidth(tableDefinition);
+            var tableHtml = "<div class='tablewrapper'><div class='div-table' style='width:"+w+"px'>";
             // Table header row
             tableHtml += "<div class='div-table-row-header' style='" + tableDefinition.headerRow.rowStyle + "'>";
             for(var c=0; c<tableDefinition.columns.length; c++) {
@@ -422,7 +433,7 @@ module powerbi.extensibility.visual {
                 if ( row.visible ) {
                     var rowHtml = "<div class='div-table-row' style='"+row.rowStyle+"'>";
                     var allColumnsAreBlank:boolean = true;
-                    if ( row.formula.length > 0 ) {
+                    //if ( row.formula.length > 0 ) {
                         for(var c=0; c<tableDefinition.columns.length; c++) {
                             var col = tableDefinition.columns[c];
                             var renderValue = "";
@@ -447,14 +458,17 @@ module powerbi.extensibility.visual {
                             else {
                                 renderValue = "";
                             }
+                            if ( row.formula.length === 0 ) {
+                                renderValue = "";
+                            }
                             var colHtml = "<div class='div-table-col-number' style='" + rowStyle + "'><div class='table-cell-content' style='"+cellRowDataStyle+"'>"+renderValue+"</div></div>";
                             rowHtml += colHtml;
                         } 
-                    }
-                    else {
+                    //}
+                    //else {
                         // Empty row
-                        rowHtml += "<div class='div-table-col-number'><div class='table-cell-content' style='"+row.cellRowDataStyle+"'></div></div>";
-                    }
+                    //    rowHtml += "<div class='div-table-col-number'><div class='table-cell-content' style='"+row.cellRowDataStyle+"'></div></div>";
+                    //}
                     rowHtml += "</div>";
                     if ( !allColumnsAreBlank || row.formula.length === 0  ) {
                         tableHtml += rowHtml;
