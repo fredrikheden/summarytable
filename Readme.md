@@ -1,11 +1,14 @@
 # Summary Table Power BI Custom Visual
 
+The summary table is a custom visual that allows you to define tables in Power BI with summary rows and custom styling. The most common scenario for using this custom visual is to create the an income statement report.
+
 ![](samples/Screenshot2.png)
-A summary table showing an income statement with two summary levels.
+
+The above image shows a summary table with an income statement with two summary levels.
 
 ![](samples/Screenshot1.png)
 
-A summary table showing an income statement with yellow highlighting.
+The abone image shows a summary table with an income statement with yellow highlighting.
 
 ## The JSON structure
 ```json
@@ -30,6 +33,7 @@ A summary table showing an income statement with yellow highlighting.
 	"format": ""
 }
 ```
+
 #### Properties
 * **headerStyle** - the css style of the header of  the column.
 * **rowStyle** - the css style of the row items of the column.
@@ -40,5 +44,37 @@ A summary table showing an income statement with yellow highlighting.
 * **calculationFormula** - the formula that should be applied when using the Calculation type. E.g. "[Savings SEK]/[Spend SEK]". Measures are referenced betweeen brackets ([]). Allowed operators are: + - / *
 * **format** - the formatting that should be applied when rendered. E.g. "#,0" and "0.0 %;-0.0 %;0.0 %".
 
+### Define columns - `rows`
+#### Example
+```json
+{
+	"title": "Total revenues",
+	"formula": "[Operating revenues]+[Other revenues]",
+	"rowStyle": "font-weight:bold;font-size:small;",
+	"visible": true,
+	"cellRowHeaderStyle": "",
+	"cellRowDataStyle": ""
+}
+```
+
+#### Properties
+* **title** - the displayed title of the row.
+* **formula** - the calculation formula of the row. Either a direct reference to another row header row is used, e.g. "[Operating revenues]", or a summary formula is expressed, e.g. "[Operating revenues]+[Other revenues]". Allowed operators are: + -
+* **rowStyle** - the css style of the whole row container.
+* **visible** - true or false, indicatng whether the row should be displayed or not.
+* **cellRowHeaderStyle** - the css style of the row header (the first column).
+* **cellRowDataStyle** - the css style of the row data columns header (all columns except the first one).
+
+### Define columns - `rows`
+#### Example
+```json
+"headerRow": {
+	"rowStyle": "background-color:#aaa"
+}
+```
+#### Properties
+* **rowStyle** - the css style of the whole row container for the header columns.
 
 ## Known issues & limitations
+* Hover-effects are not supported.
+* Expression-based css styles are not supported (e.g. settings a background color based on an expression).
