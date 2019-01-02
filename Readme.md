@@ -4,6 +4,7 @@
 A summary table showing an income statement with two summary levels.
 
 ![](samples/Screenshot1.png)
+
 A summary table showing an income statement with yellow highlighting.
 
 ## The JSON structure
