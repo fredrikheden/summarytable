@@ -3,6 +3,8 @@
 // TODO: Felhantering
 // TODO: Lägg till möjlighet att använda ett expression för att sätta styles.
 // TODO: Separat style för hover-effekt på radnivå.
+// TODO: Dynamiska kolumnnamn (baserade på expressions)
+// TODO: Referera till befintliga rader i formler (så att man inte behöver skriva samtliga fält igen)
 
 // Format %: 0.0 %;-0.0 %;0.0 %               #,0
 // Format number: #,0
@@ -195,12 +197,15 @@ module powerbi.extensibility.visual {
             var btnLoadFromFieldList : HTMLButtonElement = document.createElement("input");
             btnSave.type = "button";
             btnSave.value = "Save";
+            btnSave.className = "inputButton";
             btnLoadFromFieldList.type = "button";
             btnLoadFromFieldList.value = "Generate template from field list";
+            btnLoadFromFieldList.title = "Note! This will replace the current configuration.";
+            btnLoadFromFieldList.className = "inputButton";
             this.target.appendChild(btnSave);
             this.target.appendChild(btnLoadFromFieldList);
             var divContainer : HTMLDivElement = document.createElement("div");
-            divContainer.style.height = "100%";
+            divContainer.style.height = "94%"; // With 100% we get scrollbars in edit mode.
             this.target.appendChild(divContainer);
             var txtJson: HTMLTextAreaElement = this.editModeJsonEditor = document.createElement("textarea");
             var txtSampleJson: HTMLTextAreaElement = document.createElement("textarea");

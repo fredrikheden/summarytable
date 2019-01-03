@@ -78,3 +78,6 @@ The abone image shows a summary table with an income statement with yellow highl
 ## Known issues & limitations
 * Hover-effects are not supported.
 * Expression-based css styles are not supported (e.g. settings a background color based on an expression).
+* Expression-based column header titles are not supported.
+* Row formulas based on other row formulas are not supported. You have to define the whole formula for each row.
+* Cross-filtering other visuals (by clicking on a row) is not supported.
