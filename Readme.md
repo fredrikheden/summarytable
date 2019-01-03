@@ -44,7 +44,7 @@ The abone image shows a summary table with an income statement with yellow highl
 * **calculationFormula** - the formula that should be applied when using the Calculation type. E.g. "[Savings SEK]/[Spend SEK]". Measures are referenced betweeen brackets ([]). Allowed operators are: + - / *
 * **format** - the formatting that should be applied when rendered. E.g. "#,0" and "0.0 %;-0.0 %;0.0 %".
 
-### Define columns - `rows`
+### Define rows - `rows`
 #### Example
 ```json
 {
@@ -65,7 +65,7 @@ The abone image shows a summary table with an income statement with yellow highl
 * **cellRowHeaderStyle** - the css style of the row header (the first column).
 * **cellRowDataStyle** - the css style of the row data columns header (all columns except the first one).
 
-### Define columns - `rows`
+### Define header row style - `headerRow`
 #### Example
 ```json
 "headerRow": {
