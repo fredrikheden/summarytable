@@ -377,7 +377,7 @@ module powerbi.extensibility.visual {
         }
 
         private GetValueForColumCalculation(row:any, col): any {
-            var calculationFormula = col.calculationFormula
+            var calculationFormula = col.calculationFormula;
             var s = calculationFormula;
             var i = 0;
             var result = 0;
@@ -393,7 +393,9 @@ module powerbi.extensibility.visual {
                 var i2 = s.indexOf("]", i1);
                 var name = s.substring(i1, i2+1);
                 var operator = s.substr(0,i1).trim();
-                var columnValue = this.GetValueForColumnRowCalculationByName(row, name).rawValue; // TODO: hämta värdet
+                var calcColDef = col;
+                calcColDef.refName = name;
+                var columnValue = this.GetValueForColumnRowCalculationByName(row, calcColDef).rawValue; // TODO: hämta värdet
                 if ( operator === "+") {
                     result += columnValue;
                 } else if ( operator === "-" ) {
