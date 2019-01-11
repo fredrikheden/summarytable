@@ -10,6 +10,8 @@ The above image shows a summary table with an income statement with two summary 
 
 The abone image shows a summary table with an income statement with yellow highlighting.
 
+* [Change Log](ChangeLog.md)
+
 ## The JSON structure
 ```json
 {
