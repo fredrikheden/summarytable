@@ -74,6 +74,7 @@ module powerbi.extensibility.visual {
         private host: IVisualHost;
         private editModeJsonEditor: HTMLTextAreaElement;
         private sampleJson : string;
+        private displayAllRows : boolean = true;
 
         constructor(options: VisualConstructorOptions) {
             this.host = options.host;
@@ -152,7 +153,8 @@ module powerbi.extensibility.visual {
     ],
     headerRow: {
         rowStyle: "" // The style applied to the whole header row
-    }
+    },
+    displayAllRows: false
 }`;
             
         }
@@ -318,7 +320,8 @@ module powerbi.extensibility.visual {
     ],
     "headerRow": {
         "rowStyle": ""
-    }
+    },
+    "displayAllRows": false
 }
             `;
             fullJson = fullJson.replace(/%COLS%/g, colJson); 
@@ -434,6 +437,10 @@ module powerbi.extensibility.visual {
                 tableHtml += "<div class='div-table-col-number' style='width:" + tableDefinition.columns[c].width + "px;" + tableDefinition.columns[c].headerStyle + "'><div class='table-cell-content'>"+ tableDefinition.columns[c].title+"&nbsp;</div></div>";
             } 
             tableHtml += "</div>";
+            var DisplayAllRows = false; // Default value = display all rows
+            if ( typeof(tableDefinition.displayAllRows)!=="undefined" ) {
+                DisplayAllRows = tableDefinition.displayAllRows;
+            }
             // Table rows
             for(var r=0; r<tableDefinition.rows.length; r++) {
                 var row = tableDefinition.rows[r];
@@ -451,7 +458,11 @@ module powerbi.extensibility.visual {
                                 var v = this.GetValueForColumnRowCalculationByName(row, col);
                                 allColumnsAreBlank = v.rawValue !== null ? false : allColumnsAreBlank;
                                 //renderValue = v === null ? "" : v.formattedValue;
-                                renderValue = isNaN(Number(v.rawValue)) ? "" : v.formattedValue;
+                                if ( isNaN(Number(v.rawValue)) || v.rawValue === null) {
+                                    renderValue = "&nbsp;";    
+                                } else {
+                                    renderValue = v.formattedValue;
+                                }
                             } 
                             else if ( col.type === "RowHeader") {
                                 renderValue = row.title;
@@ -460,7 +471,11 @@ module powerbi.extensibility.visual {
                             else if ( col.type === "Calculation") {
                                 // Kolumner som baseras på en formeln räknas ut
                                 renderValue = this.GetValueForColumCalculation(row, col);
-                                allColumnsAreBlank = renderValue.toLowerCase() !== "(blank)" ? false : allColumnsAreBlank;
+                                if ( renderValue.toLowerCase() !== "(blank)" && renderValue.toLowerCase() !== "nan" ) {
+                                    allColumnsAreBlank = false;
+                                } else {
+                                    renderValue = "&nbsp;";
+                                }
                             } 
                             else {
                                 renderValue = "";
@@ -477,7 +492,7 @@ module powerbi.extensibility.visual {
                     //    rowHtml += "<div class='div-table-col-number'><div class='table-cell-content' style='"+row.cellRowDataStyle+"'></div></div>";
                     //}
                     rowHtml += "</div>";
-                    if ( !allColumnsAreBlank || row.formula.length === 0  ) {
+                    if ( !allColumnsAreBlank || row.formula.length === 0 || DisplayAllRows  ) {
                         tableHtml += rowHtml;
                     }
                     
