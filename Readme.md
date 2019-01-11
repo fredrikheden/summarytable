@@ -1,6 +1,7 @@
 # Summary Table Power BI Custom Visual
 
 The summary table is a custom visual that allows you to define tables in Power BI with summary rows and custom styling. The most common scenario for using this custom visual is to create the an income statement report.
+* [Change Log](ChangeLog.md)
 
 ![](samples/Screenshot2.png)
 
@@ -9,8 +10,6 @@ The above image shows a summary table with an income statement with two summary 
 ![](samples/Screenshot1.png)
 
 The abone image shows a summary table with an income statement with yellow highlighting.
-
-* [Change Log](ChangeLog.md)
 
 ## The JSON structure
 ```json
