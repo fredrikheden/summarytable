@@ -1,11 +1,10 @@
-// TODO: Använd evaluate för att gör beräkningen istället (så att man automatiskt får stöd för parenteser etc)
+// TODO: Lägg till möjlighet att använda ett expression för att sätta styles.
 // TODO: Använd en bättre kod-editor för highlighting m.m.
 // TODO: Referera till befintliga rader i formler (så att man inte behöver skriva samtliga fält igen). Gör redisign på detta.
 // TODO: Dynamiska kolumnnamn (baserade på expressions)
 // TODO: Cross-filter
 // TODO: Kunna välja mellan olika templates (som bara applicerar styles)
 // TODO: Felhantering
-// TODO: Lägg till möjlighet att använda ett expression för att sätta styles.
 // TODO: Separat style för hover-effekt på radnivå.
 
 // Format %: 0.0 %;-0.0 %;0.0 %               #,0
@@ -386,35 +385,31 @@ module powerbi.extensibility.visual {
             var s = calculationFormula;
             var i = 0;
             var result = 0;
+            var resultExpression = calculationFormula;
             while( true ) {
                 s = s.trim();
                 if ( s.length === 0 || i > 10 ) {
                     break;
                 }
-                if ( s[0] == "[" ){
+                if ( s[0] === "[" ){
                     s = "+" + s;
                 }
                 var i1 = s.indexOf("[", 0);
+                if ( i1 === -1 ) {
+                    break;
+                }
                 var i2 = s.indexOf("]", i1);
                 var name = s.substring(i1, i2+1);
-                var operator = s.substr(0,i1).trim();
                 var calcColDef = col;
                 calcColDef.refName = name;
-                var columnValue = this.GetValueForColumnRowCalculationByName(row, calcColDef).rawValue; // TODO: hämta värdet
-                if ( operator === "+") {
-                    result += columnValue;
-                } else if ( operator === "-" ) {
-                    result -= columnValue;
-                } else if ( operator === "*" ) {
-                    result *= columnValue;
-                } else if ( operator === "/" ) {
-                    result /= columnValue;
-                }
+                var columnValue = this.GetValueForColumnRowCalculationByName(row, calcColDef).rawValue;
+                resultExpression = resultExpression.replace(name, columnValue);
                 s = s.substr(i2+1);
                 i ++;
             }
             var format = col.format;
-            var resultFormatted = valueFormatter.format(result, format);
+            var evalValue = eval(resultExpression);
+            var resultFormatted = valueFormatter.format(evalValue, format);
             return resultFormatted;
         }
 
