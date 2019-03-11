@@ -1,6 +1,6 @@
+// TODO: Referera till befintliga rader i formler (så att man inte behöver skriva samtliga fält igen). Gör redisign på detta.
 // TODO: Lägg till möjlighet att använda ett expression för att sätta styles.
 // TODO: Använd en bättre kod-editor för highlighting m.m.
-// TODO: Referera till befintliga rader i formler (så att man inte behöver skriva samtliga fält igen). Gör redisign på detta.
 // TODO: Dynamiska kolumnnamn (baserade på expressions)
 // TODO: Cross-filter
 // TODO: Kunna välja mellan olika templates (som bara applicerar styles)
@@ -370,6 +370,7 @@ module powerbi.extensibility.visual {
                 }
             }
             var retValue = null;
+            console.log(row);
             if ( colIndex !== -1 ) {
                 retValue = this.GetValueForColumnRowCalculationByIndex(row, colIndex, colDef);
             } else {
