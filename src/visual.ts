@@ -1,4 +1,3 @@
-// TODO: Referera till befintliga rader i formler (så att man inte behöver skriva samtliga fält igen). Gör redisign på detta.
 // TODO: Lägg till möjlighet att använda ett expression för att sätta styles.
 // TODO: Använd en bättre kod-editor för highlighting m.m.
 // TODO: Dynamiska kolumnnamn (baserade på expressions)
