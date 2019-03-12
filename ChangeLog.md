@@ -1,6 +1,7 @@
 # Change Log
 
 ## Version v1.3.0 (not released yet)
+** Possible to reference calculated rows in formulas.
 
 ## Version v1.2.0 (not released yet, under review)
 ** Any formula expression (including parenthesis etc.) is now possible on column calculations. Javascript's standard evaluation of expressions are used instead of custom one.
