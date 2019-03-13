@@ -443,85 +443,105 @@ module powerbi.extensibility.visual {
                 DisplayAllRows = tableDefinition.displayAllRows;
             }
             
+            // Fix ranges (replace : with multiple +)
+            for(var r=0; r<tableDefinition.rows.length; r++) {
+                var row = tableDefinition.rows[r];
+                var newFormula = "";
+                if ( row.formula.includes("::") ) {
+                    var p = row.formula.indexOf("::");
+                    var startRange = row.formula.substring(0,p).trim();
+                    var endRange = row.formula.substring(p+2).trim();
+                    for(var i=0; i<this.model.length; i++) {
+                        if ( this.model[i].name >= startRange && this.model[i].name <= endRange ) {
+                            newFormula += "+" + this.model[i].name;
+                        }
+                    }
+                    row.formula = newFormula;
+                }
+            }
+
             // Table rows
             for(var r=0; r<tableDefinition.rows.length; r++) {
                 var row = tableDefinition.rows[r];
-                if ( row.visible ) {
-                    var rowHtml = "<div class='div-table-row' style='"+row.rowStyle+"'>";
-                    var allColumnsAreBlank:boolean = true;
-                    var rowCols = [];
-                    for(var c=0; c<tableDefinition.columns.length; c++) {
-                        var col = tableDefinition.columns[c];
-                        var renderValue = "";
-                        var rowStyle = "width:" + col.width + "px;" +  col.rowStyle;
-                        var cellRowDataStyle = row.cellRowDataStyle;
-                        if ( col.type === "Data" ) {
-                            // Datakolumners innehåll hämtar vi från modellen direkt.
-                            var v = this.GetValueForColumnRowCalculationByName(row, col);
-                            allColumnsAreBlank = v.rawValue !== null ? false : allColumnsAreBlank;
-                            //renderValue = v === null ? "" : v.formattedValue;
-                            if ( isNaN(Number(v.rawValue)) || v.rawValue === null) {
-                                renderValue = "&nbsp;";    
-                            } else {
-                                renderValue = v.formattedValue;
-                            }
-                            v.formatString = col.format;
-                            rowCols.push( v );
-                        } 
-                        else if ( col.type === "RowHeader") {
-                            renderValue = row.title;
-                            cellRowDataStyle = "width:" + col.width + "px;" +  row.cellRowHeaderStyle;
-                            rowCols.push( { rawValue: null, formatString: null } );
-                        } 
-                        else if ( col.type === "Calculation") {
-                            // Kolumner som baseras på en formeln räknas ut
-                            var calcValue = this.GetValueForColumCalculation(row, col);
-                            renderValue = calcValue.formattedValue;
-                            if ( renderValue.toLowerCase() !== "(blank)" && renderValue.toLowerCase() !== "nan" ) {
-                                allColumnsAreBlank = false;
-                            } else {
-                                renderValue = "&nbsp;";
-                            }
-                            calcValue.formatString = col.format;
-                            rowCols.push( calcValue );
-                        } 
-                        else {
-                            renderValue = "";
-                            rowCols.push( { rawValue: null, formatString: null } );
+                var rowHtml = "";
+                rowHtml += "<div class='div-table-row' style='"+row.rowStyle+"'>";
+                var allColumnsAreBlank:boolean = true;
+                var rowCols = [];
+                for(var c=0; c<tableDefinition.columns.length; c++) {
+                    var col = tableDefinition.columns[c];
+                    var renderValue = "";
+                    var rowStyle = "width:" + col.width + "px;" +  col.rowStyle;
+                    var cellRowDataStyle = row.cellRowDataStyle;
+                    if ( col.type === "Data" ) {
+                        // Datakolumners innehåll hämtar vi från modellen direkt.
+                        var v = this.GetValueForColumnRowCalculationByName(row, col);
+                        allColumnsAreBlank = v.rawValue !== null ? false : allColumnsAreBlank;
+                        //renderValue = v === null ? "" : v.formattedValue;
+                        if ( isNaN(Number(v.rawValue)) || v.rawValue === null) {
+                            renderValue = "&nbsp;";    
+                        } else {
+                            renderValue = v.formattedValue;
                         }
-                        if ( row.formula.length === 0 ) {
-                            renderValue = "";
-                        }
-                        var colHtml = "<div class='div-table-col-number' style='" + rowStyle + "'><div class='table-cell-content' style='"+cellRowDataStyle+"'>"+renderValue+"</div></div>";
-                        rowHtml += colHtml;
+                        v.formatString = col.format;
+                        rowCols.push( v );
                     } 
-                    rowHtml += "</div>";
-                    if ( !allColumnsAreBlank || row.formula.length === 0 || DisplayAllRows  ) {
-                        tableHtml += rowHtml;
-                    }
-                    // Add calculated row to model (to be able to reuse it in later calculations)
-                    var isCalculatedRow = true;
-                    for(var i=0; i<this.model.length; i++) {
-                        if ( this.model[i].title === row.title) {
-                            isCalculatedRow = false;
+                    else if ( col.type === "RowHeader") {
+                        renderValue = row.title;
+                        cellRowDataStyle = "width:" + col.width + "px;" +  row.cellRowHeaderStyle;
+                        rowCols.push( { rawValue: null, formatString: null } );
+                    } 
+                    else if ( col.type === "Calculation") {
+                        // Kolumner som baseras på en formeln räknas ut
+                        var calcValue = this.GetValueForColumCalculation(row, col);
+                        renderValue = calcValue.formattedValue;
+                        if ( renderValue.toLowerCase() !== "(blank)" && renderValue.toLowerCase() !== "nan" ) {
+                            allColumnsAreBlank = false;
+                        } else {
+                            renderValue = "&nbsp;";
                         }
+                        calcValue.formatString = col.format;
+                        rowCols.push( calcValue );
+                    } 
+                    else {
+                        renderValue = "";
+                        rowCols.push( { rawValue: null, formatString: null } );
                     }
-                    if ( isCalculatedRow && row.title.length > 0 ){
-                        // Add new row - it does not exist already
-                        var newTitle = row.title;
-                        var newName = "[" + newTitle + "]";
-                        for( var c=0; c<rowCols.length; c++) {
-                            rowCols[c].displayName = newTitle;
-                            rowCols[c].refName = newName;
-                        }
-                        var newModelRow = { 
-                            name: newName,
-                            title: newTitle,
-                            values: rowCols
-                        };
-                        this.model.push(newModelRow);
+                    if ( row.formula.length === 0 ) {
+                        renderValue = "";
                     }
-
+                    var colHtml = "<div class='div-table-col-number' style='" + rowStyle + "'><div class='table-cell-content' style='"+cellRowDataStyle+"'>"+renderValue+"</div></div>";
+                    rowHtml += colHtml;
+                } 
+                rowHtml += "</div>";
+                if ( !allColumnsAreBlank || row.formula.length === 0 || DisplayAllRows ) {
+                    //tableHtml += rowHtml;
+                } else {
+                    rowHtml = "";
+                }
+                // Add calculated row to model (to be able to reuse it in later calculations)
+                var isCalculatedRow = true;
+                for(var i=0; i<this.model.length; i++) {
+                    if ( this.model[i].title === row.title) {
+                        isCalculatedRow = false;
+                    }
+                }
+                if ( isCalculatedRow && row.title.length > 0 ){
+                    // Add new row - it does not exist already
+                    var newTitle = row.title;
+                    var newName = "[" + newTitle + "]";
+                    for( var c=0; c<rowCols.length; c++) {
+                        rowCols[c].displayName = newTitle;
+                        rowCols[c].refName = newName;
+                    }
+                    var newModelRow = { 
+                        name: newName,
+                        title: newTitle,
+                        values: rowCols
+                    };
+                    this.model.push(newModelRow);
+                }
+                if ( row.visible ) {
+                    tableHtml += rowHtml;
                 }
             } 
             tableHtml += "</div></div>";
