@@ -79,6 +79,7 @@ module powerbi.extensibility.visual {
         private editModeJsonEditor: HTMLTextAreaElement;
         private sampleJson : string;
         private displayAllRows : boolean = true;
+        private internalVersionNo: string = "1.3.0";
 
         constructor(options: VisualConstructorOptions) {
             this.host = options.host;
@@ -190,6 +191,15 @@ module powerbi.extensibility.visual {
                 }
             }
             this.target.style.overflow = "auto";
+
+            this.RenderVersionNo();
+        }
+
+        public RenderVersionNo() {
+            var a = document.createElement("div");
+            a.style.display = "none";
+            a.innerHTML = "Version: " + this.internalVersionNo;
+            this.target.appendChild(a);
         }
 
         public RenderNoContentText() {
