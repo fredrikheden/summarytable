@@ -43,7 +43,7 @@ The abone image shows a summary table with an income statement with yellow highl
 * **type** - the type of column. Valid values are RowHeader, Data and Calculation. RowHeader is used for the first column that contains the header for each row. Data is used for a column that is bound to a measure. Calculation is used when a specific calculation should be applied at render-time.
 * **refName** - the name of the data bound measure/attribute. Only applicable when using RowHeader and Calculcation type.
 * **title** - the displayed title of the column.
-* **calculationFormula** - the formula that should be applied when using the Calculation type. E.g. "[Savings SEK]/[Spend SEK]". Measures are referenced betweeen brackets ([]). Allowed operators are: + - / *
+* **calculationFormula** - the formula that should be applied when using the Calculation type. E.g. "[Savings SEK]/[Spend SEK]". Measures are referenced betweeen brackets ([]). Any formula and operator that can be evaluated using javaScript kan be used.
 * **format** - the formatting that should be applied when rendered. E.g. "#,0" and "0.0 %;-0.0 %;0.0 %".
 
 ### Define rows - `rows`
@@ -61,7 +61,7 @@ The abone image shows a summary table with an income statement with yellow highl
 
 #### Properties
 * **title** - the displayed title of the row.
-* **formula** - the calculation formula of the row. Either a direct reference to another row header row is used, e.g. "[Operating revenues]", or a summary formula is expressed, e.g. "[Operating revenues]+[Other revenues]". Allowed operators are: + -
+* **formula** - the calculation formula of the row. Either a direct reference to another row header row is used, e.g. "[Operating revenues]", or a summary formula is expressed, e.g. "[Operating revenues]+[Other revenues]". Allowed operators are: + - ::. For ranges the :: operator i used, e.g. "[100]::[200]". It is allowed to reference calculated rows is they are created before this row.
 * **rowStyle** - the css style of the whole row container.
 * **visible** - true or false, indicatng whether the row should be displayed or not.
 * **cellRowHeaderStyle** - the css style of the row header (the first column).

@@ -1,7 +1,7 @@
 # Change Log
 
 ## Version v1.3.0 (not released yet)
-** Possible to reference calculated rows in formulas.
+** Possible to reference calculated rows in row formulas.
 ** Possible to add ranges i row formulas, using double colon. Syntax: "formula": "[1240]::[1668]"
 
 ## Version v1.2.0
