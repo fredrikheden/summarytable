@@ -7,7 +7,8 @@
 // TODO: Separat style för hover-effekt på radnivå.
 
 // Format %: 0.0 %;-0.0 %;0.0 %               #,0
-// Format number: #,0
+// Format number thousand separator: #,0
+// Format number 4 decimals: #.0000
 
 
 /*
@@ -39,6 +40,27 @@ module powerbi.extensibility.visual {
 
     function jsonCopy(src) {
         return JSON.parse(JSON.stringify(src));
+      }
+
+      function containsValue(v) {
+        if ( typeof v === 'undefined' ) {
+            return false;
+        }
+        if ( v === "" ) {
+            return false;
+        }
+        if ( v.trim().length === 0 ) {
+            return false;
+        }
+        return true;
+      }
+
+      function replace2(str, strToFind, strToReplace) {
+        var strR = strToReplace;
+        var strF = strToFind.replace("[", "\\[", "g").replace("]", "\\]", "g");
+        var regEx = new RegExp(strF, "ig");       
+        var result = str.replace(regEx, strR);
+        return result;
       }
 
     //function visualTransform(options: VisualUpdateOptions, host: IVisualHost, thisRef: Visual): VisualViewModel {            
@@ -79,7 +101,7 @@ module powerbi.extensibility.visual {
         private editModeJsonEditor: HTMLTextAreaElement;
         private sampleJson : string;
         private displayAllRows : boolean = true;
-        private internalVersionNo: string = "1.3.0";
+        private internalVersionNo: string = "1.4.0";
 
         constructor(options: VisualConstructorOptions) {
             this.host = options.host;
@@ -344,12 +366,19 @@ module powerbi.extensibility.visual {
         }
 
         private GetValueForColumnRowCalculationByIndex(row:any, colIndex: number, colDef: any) : any {
-            var rawValue = null;
+            // Till denna funktion kommer vi en gång per beräknad rad.
+            var fExpression = row.formula;
             for(var i=0; i<this.model.length; i++) {
+                // Gå igenom varje rad i modellen för att hitta referenser
                 if ( row.formula !== null && this.model[i].name !== null) {
                     var iPos = row.formula.toLowerCase().indexOf( this.model[i].name.toLowerCase() );
                     if (  iPos !== -1 ) {
-                        var s = row.formula.substring(0, iPos);
+                        var modelRawValue = this.model[i].values[colIndex].rawValue;
+                        //fExpression = fExpression.replace(this.model[i].name, modelRawValue, "g");
+                        fExpression = replace2( fExpression, this.model[i].name, modelRawValue );
+                        
+
+                        /*var s = row.formula.substring(0, iPos);
                         var iPosLeft = s.lastIndexOf( "]", iPos );
                         var aritm = row.formula.toLowerCase().substring(iPosLeft+1, iPos);
                         if( aritm.length === 0 ) {
@@ -360,13 +389,17 @@ module powerbi.extensibility.visual {
                             rawValue -= this.model[i].values[colIndex].rawValue;
                         } else {
                             rawValue += this.model[i].values[colIndex].rawValue;
-                        }
+                        } */
                     }
                 }
             }
+            var rawValue = eval( fExpression );
             var format = this.model[0].values[colIndex].formatString;
-            if ( colDef.format.length > 0 ) {
+            if ( containsValue(colDef.format) ) { // Only use column formatting if it is defined
                 format = colDef.format;
+            }
+            if ( containsValue(row.format) ) { // Only use row formatting if it is defined
+                format = row.format;
             }
             var formattedValue = valueFormatter.format(rawValue, format);
             return { formattedValue: formattedValue, rawValue: rawValue };
@@ -421,6 +454,9 @@ module powerbi.extensibility.visual {
                 i ++;
             }
             var format = col.format;
+            if ( containsValue(row.format) ) {
+                format = row.format;
+            }
             var evalValue = eval(resultExpression);
             var resultFormatted = valueFormatter.format(evalValue, format);
             return { formattedValue: resultFormatted, rawValue: evalValue };

@@ -4,7 +4,7 @@
     "displayName": "Summary Table",
     "guid": "summaryTableEBA1E7D9C77B47D0914D7D98B4D120DC",
     "visualClassName": "Visual",
-    "version": "1.3.0",
+    "version": "1.4.0",
     "description": "The summary table is a custom visual that allows you to define tables in Power BI with summary rows and custom styling. The most common scenario for using this custom visual is to create various income statement reports.",
     "supportUrl": "http://www.fredrikhedenstrom.com",
     "gitHubUrl": "https://github.com/fredrikheden/summarytable"

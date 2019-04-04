@@ -55,17 +55,19 @@ The abone image shows a summary table with an income statement with yellow highl
 	"rowStyle": "font-weight:bold;font-size:small;",
 	"visible": true,
 	"cellRowHeaderStyle": "",
-	"cellRowDataStyle": ""
+	"cellRowDataStyle": "",
+	"format": ""
 }
 ```
 
 #### Properties
 * **title** - the displayed title of the row.
-* **formula** - the calculation formula of the row. Either a direct reference to another row header row is used, e.g. "[Operating revenues]", or a summary formula is expressed, e.g. "[Operating revenues]+[Other revenues]". Allowed operators are: + - ::. For ranges the :: operator i used, e.g. "[100]::[200]". It is allowed to reference calculated rows is they are created before this row.
+* **formula** - the calculation formula of the row. Either a direct reference to another row header row is used, e.g. "[Operating revenues]", or a summary formula is expressed, e.g. "[Operating revenues]+[Other revenues]". Any operator is allowed (from v1.4.0). For ranges the :: operator i used, e.g. "[100]::[200]". It is allowed to reference calculated rows is they are created before this row.
 * **rowStyle** - the css style of the whole row container.
 * **visible** - true or false, indicatng whether the row should be displayed or not.
 * **cellRowHeaderStyle** - the css style of the row header (the first column).
 * **cellRowDataStyle** - the css style of the row data columns header (all columns except the first one).
+* **format** - optional formatting that should be applied to the whole row when rendered. E.g. "#,0" and "0.0 %;-0.0 %;0.0 %". 
 
 ### Define header row style - `headerRow`
 #### Example
@@ -78,8 +80,8 @@ The abone image shows a summary table with an income statement with yellow highl
 * **rowStyle** - the css style of the whole row container for the header columns.
 
 ## Known issues & limitations
+* If a row calculation is used in combination with a column calculation, the row calculation is done before the column calculation.
 * Hover-effects are not supported.
 * Expression-based css styles are not supported (e.g. settings a background color based on an expression).
 * Expression-based column header titles are not supported.
-* Row formulas based on other row formulas are not supported. You have to define the whole formula for each row.
 * Cross-filtering other visuals (by clicking on a row) is not supported.
