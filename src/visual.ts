@@ -101,7 +101,7 @@ module powerbi.extensibility.visual {
         private editModeJsonEditor: HTMLTextAreaElement;
         private sampleJson : string;
         private displayAllRows : boolean = true;
-        private internalVersionNo: string = "1.4.0";
+        private internalVersionNo: string = "1.4.1";
 
         constructor(options: VisualConstructorOptions) {
             this.host = options.host;
@@ -493,7 +493,7 @@ module powerbi.extensibility.visual {
             for(var r=0; r<tableDefinition.rows.length; r++) {
                 var row = tableDefinition.rows[r];
                 var newFormula = "";
-                if ( row.formula.includes("::") ) {
+                if ( row.formula.indexOf("::") > -1 ) { // indexOf instead of includes to support older browsers
                     var p = row.formula.indexOf("::");
                     var startRange = row.formula.substring(0,p).trim();
                     var endRange = row.formula.substring(p+2).trim();
