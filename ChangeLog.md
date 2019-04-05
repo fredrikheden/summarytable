@@ -1,5 +1,8 @@
 # Change Log
 
+## Version v1.4.1 (not released yet)
+** Bugfix for older browsers.
+
 ## Version v1.4.0 (not released yet)
 ** Possible to set custom format on a whole row by using the format property on a row.
 ** Possible to use any formula expression on row calculations. Javascript's standard evaluation of expressions are used instead of custom code.
