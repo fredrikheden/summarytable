@@ -69,7 +69,7 @@ module powerbi.extensibility.visual {
         var a = options.dataViews[0].metadata.columns[1];
 
         let tblView = dataViews[0].table;
-        
+
         var tblData = [];
 
         for( var i = 0; i < dataViews[0].table.rows.length; i++) {
@@ -79,7 +79,8 @@ module powerbi.extensibility.visual {
                 var rawValue =  r[t];
                 var formatString =  dataViews[0].table.columns[t].format;
                 var columnName =  dataViews[0].table.columns[t].displayName;
-                colData.push( { rawValue: rawValue, formatString: formatString, displayName: columnName, refName: "[" + columnName + "]"  } );
+                var isColumnNumeric = dataViews[0].table.columns[t].type.numeric;
+                colData.push( { rawValue: rawValue, formatString: formatString, displayName: columnName, refName: "[" + columnName + "]", isNumeric: isColumnNumeric  } );
             }
             var row = {
                 title : dataViews[0].table.rows[i][0],
@@ -228,6 +229,10 @@ module powerbi.extensibility.visual {
             var a = document.createElement("div");
             a.innerHTML = "No table definition defined. Edit the table definition by pressing the edit link in the upper right menu.";
             this.target.appendChild(a);
+        }
+
+        public RenderNonNumericColumns(target) {
+            target.innerHTML = "Columns other than the first one contains non-numeric fields. This is not allowed.";
         }
 
         public RenderEditMode() {
@@ -393,7 +398,7 @@ module powerbi.extensibility.visual {
                     }
                 }
             }
-            var rawValue = eval( fExpression );
+            var rawValue = this.EvalFormula( fExpression );
             var format = this.model[0].values[colIndex].formatString;
             if ( containsValue(colDef.format) ) { // Only use column formatting if it is defined
                 format = colDef.format;
@@ -401,8 +406,23 @@ module powerbi.extensibility.visual {
             if ( containsValue(row.format) ) { // Only use row formatting if it is defined
                 format = row.format;
             }
-            var formattedValue = valueFormatter.format(rawValue, format);
+            var formattedValue = this.FormatValue(rawValue, format, valueFormatter);
             return { formattedValue: formattedValue, rawValue: rawValue };
+        }
+
+        private EvalFormula(expr) {
+            var e = null;
+            try {
+                e = eval(expr);
+            } catch(exc) {
+                e = null;
+            }
+            return e;
+        }
+
+        private FormatValue(rawValue, format, valueFormatter) {
+            var formattedValue = valueFormatter.format(rawValue, format);
+            return formattedValue;
         }
 
         private GetValueForColumnRowCalculationByName(row:any, colDef: any) : any {
@@ -457,8 +477,8 @@ module powerbi.extensibility.visual {
             if ( containsValue(row.format) ) {
                 format = row.format;
             }
-            var evalValue = eval(resultExpression);
-            var resultFormatted = valueFormatter.format(evalValue, format);
+            var evalValue = this.EvalFormula(resultExpression);
+            var resultFormatted = this.FormatValue(evalValue, format, valueFormatter);
             return { formattedValue: resultFormatted, rawValue: evalValue };
         }
 
@@ -475,6 +495,22 @@ module powerbi.extensibility.visual {
                 this.RenderNoContentText();
                 return;
             }
+
+            // Check that all columns except the first one is numeric
+            if ( this.model.length > 0 && this.model[0].values.length > 1) {
+                var hasNonNumeric = false;
+                for( var i=1; i<this.model[0].values.length; i++) {
+                    if ( !this.model[0].values[i].isNumeric ) {
+                        hasNonNumeric = true;
+                    }
+                }
+            }
+
+            if ( hasNonNumeric ) {
+                this.RenderNonNumericColumns(targetElement);
+                return;
+            }
+
             var w = this.getTableTotalWidth(tableDefinition);
             var tableHtml = "<div class='tablewrapper'><div class='div-table' style='width:"+w+"px'>";
             
@@ -524,7 +560,8 @@ module powerbi.extensibility.visual {
                         allColumnsAreBlank = v.rawValue !== null ? false : allColumnsAreBlank;
                         //renderValue = v === null ? "" : v.formattedValue;
                         if ( isNaN(Number(v.rawValue)) || v.rawValue === null) {
-                            renderValue = "&nbsp;";    
+                            renderValue = "&nbsp;"; 
+                            //renderValue = v.rawValue;   
                         } else {
                             renderValue = v.formattedValue;
                         }
