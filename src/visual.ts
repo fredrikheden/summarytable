@@ -102,7 +102,7 @@ module powerbi.extensibility.visual {
         private editModeJsonEditor: HTMLTextAreaElement;
         private sampleJson : string;
         private displayAllRows : boolean = true;
-        private internalVersionNo: string = "1.4.1";
+        private internalVersionNo: string = "1.4.2";
 
         constructor(options: VisualConstructorOptions) {
             this.host = options.host;

@@ -1,6 +1,6 @@
 # Change Log
 
-## Version v1.4.1 (not released yet)
+## Version v1.4.2 (not released yet)
 * Bugfix for older browsers.
 
 ## Version v1.4.0 (not released yet)
