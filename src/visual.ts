@@ -102,7 +102,7 @@ module powerbi.extensibility.visual {
         private editModeJsonEditor: HTMLTextAreaElement;
         private sampleJson : string;
         private displayAllRows : boolean = true;
-        private internalVersionNo: string = "1.4.2";
+        private internalVersionNo: string = "1.4.3";
 
         constructor(options: VisualConstructorOptions) {
             this.host = options.host;
@@ -484,8 +484,12 @@ module powerbi.extensibility.visual {
 
         private getTableTotalWidth(tableDefinition: any):number {
             var w = 0;
+            var additionalWidth = tableDefinition.additionalWidth;
             for(var c=0; c<tableDefinition.columns.length; c++) {
                 w += tableDefinition.columns[c].width;
+            }
+            if ( !isNaN(additionalWidth) ) {
+                w += additionalWidth;
             }
             return w;
         }

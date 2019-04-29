@@ -32,7 +32,8 @@ The abone image shows a summary table with an income statement with yellow highl
 	"refName": "[AccountGroup]", 
 	"title": "Amounts in k$",
 	"calculationFormula": "", 
-	"format": ""
+	"format": "",
+	"additionalWidth":5
 }
 ```
 
@@ -45,6 +46,7 @@ The abone image shows a summary table with an income statement with yellow highl
 * **title** - the displayed title of the column.
 * **calculationFormula** - the formula that should be applied when using the Calculation type. E.g. "[Savings SEK]/[Spend SEK]". Measures are referenced betweeen brackets ([]). Any formula and operator that can be evaluated using javaScript kan be used.
 * **format** - the formatting that should be applied when rendered. E.g. "#,0" and "0.0 %;-0.0 %;0.0 %".
+* **additionalWidth** - additional width to add to the containing table. This property needs to be set is using borders on the columns. Add the total amount of horizontal border width to this cell.
 
 ### Define rows - `rows`
 #### Example

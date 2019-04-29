@@ -1,9 +1,12 @@
 # Change Log
 
-## Version v1.4.2 (not released yet)
+## Version v1.4.3 (not released yet)
+* Added additionalWidth property to make it possible to work with border style/width.
+
+## Version v1.4.2
 * Bugfix for older browsers.
 
-## Version v1.4.0 (not released yet)
+## Version v1.4.0
 * Possible to set custom format on a whole row by using the format property on a row.
 * Possible to use any formula expression on row calculations. Javascript's standard evaluation of expressions are used instead of custom code.
 
