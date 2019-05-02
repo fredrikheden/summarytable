@@ -1,6 +1,9 @@
 # Change Log
 
-## Version v1.4.3 (not released yet)
+## Version v1.4.4 (not released yet)
+* Added support for parenthesis in row reference names.
+
+## Version v1.4.3 (submitted, not released yet)
 * Added additionalWidth property to make it possible to work with border style/width.
 
 ## Version v1.4.2

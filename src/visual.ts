@@ -57,7 +57,7 @@ module powerbi.extensibility.visual {
 
       function replace2(str, strToFind, strToReplace) {
         var strR = strToReplace;
-        var strF = strToFind.replace("[", "\\[", "g").replace("]", "\\]", "g");
+        var strF = strToFind.replace("[", "\\[", "g").replace("]", "\\]", "g").replace(")", "\\)", "g").replace("(", "\\(", "g");
         var regEx = new RegExp(strF, "ig");       
         var result = str.replace(regEx, strR);
         return result;
@@ -102,7 +102,7 @@ module powerbi.extensibility.visual {
         private editModeJsonEditor: HTMLTextAreaElement;
         private sampleJson : string;
         private displayAllRows : boolean = true;
-        private internalVersionNo: string = "1.4.3";
+        private internalVersionNo: string = "1.4.4";
 
         constructor(options: VisualConstructorOptions) {
             this.host = options.host;
@@ -379,22 +379,7 @@ module powerbi.extensibility.visual {
                     var iPos = row.formula.toLowerCase().indexOf( this.model[i].name.toLowerCase() );
                     if (  iPos !== -1 ) {
                         var modelRawValue = this.model[i].values[colIndex].rawValue;
-                        //fExpression = fExpression.replace(this.model[i].name, modelRawValue, "g");
                         fExpression = replace2( fExpression, this.model[i].name, modelRawValue );
-                        
-
-                        /*var s = row.formula.substring(0, iPos);
-                        var iPosLeft = s.lastIndexOf( "]", iPos );
-                        var aritm = row.formula.toLowerCase().substring(iPosLeft+1, iPos);
-                        if( aritm.length === 0 ) {
-                            aritm = "+";
-                        }
-                        aritm = aritm.trim();
-                        if ( aritm === "-") {
-                            rawValue -= this.model[i].values[colIndex].rawValue;
-                        } else {
-                            rawValue += this.model[i].values[colIndex].rawValue;
-                        } */
                     }
                 }
             }
