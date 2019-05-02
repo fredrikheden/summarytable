@@ -17,7 +17,7 @@ The abone image shows a summary table with an income statement with yellow highl
 	"columns": [...],
 	"rows": [...],
 	"headerRow": {...},
-	"displayheaderRowAllRows: true/false,
+	"displayheaderRowAllRows": true/false,
 	"additionalWidth": 5
 }
 ```
