@@ -18,11 +18,18 @@ The abone image shows a summary table with an income statement with yellow highl
 	"rows": [...],
 	"headerRow": {...},
 	"displayheaderRowAllRows": true/false,
-	"additionalWidth": 5
+	"additionalWidth": 5,
+	"reusableCSS" : [
+		{
+			"key": "#blackbackground#",
+			"value": "background-color:#000;color:#fff"
+		}
+	]
 }
 ```
 * **additionalWidth** - additional width to add to the containing table. This property needs to be set is using borders on the columns. Add the total amount of horizontal border width to this cell.
 
+* **reusableCSS** - a way to define a css string that is reusable in all the style properties.
 
 ### Define columns - `columns`
 #### Example

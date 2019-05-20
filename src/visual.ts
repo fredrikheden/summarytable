@@ -479,6 +479,21 @@ module powerbi.extensibility.visual {
             return w;
         }
 
+        // Hämtar ut en style och applicerar eventuella globla styles (angivna i reusableCSS)
+        private getStyle(style: string, tableDefinition: any) {
+            if ( typeof(tableDefinition.reusableCSS) === "undefined" ) {
+                return style;
+            }
+            if ( tableDefinition.reusableCSS.length === 0 ) {
+                return style;
+            }
+            var style2 = style;
+            for( var i=0; i<tableDefinition.reusableCSS.length; i++) {
+                style2 = replace2( style2, tableDefinition.reusableCSS[i].key, tableDefinition.reusableCSS[i].value );
+            }
+            return style2;
+        }
+
         private RenderAllContent(targetElement: HTMLElement, tableDefinition: any) {
             if ( tableDefinition === null ) {
                 this.RenderNoContentText();
@@ -504,9 +519,11 @@ module powerbi.extensibility.visual {
             var tableHtml = "<div class='tablewrapper'><div class='div-table' style='width:"+w+"px'>";
             
             // Table header row
-            tableHtml += "<div class='div-table-row-header' style='" + tableDefinition.headerRow.rowStyle + "'>";
+            var rowStyle = this.getStyle(tableDefinition.headerRow.rowStyle, tableDefinition);
+            tableHtml += "<div class='div-table-row-header' style='" + rowStyle + "'>";
             for(var c=0; c<tableDefinition.columns.length; c++) {
-                tableHtml += "<div class='div-table-col-number' style='width:" + tableDefinition.columns[c].width + "px;" + tableDefinition.columns[c].headerStyle + "'><div class='table-cell-content'>"+ tableDefinition.columns[c].title+"&nbsp;</div></div>";
+                var headerStyle = this.getStyle(tableDefinition.columns[c].headerStyle, tableDefinition);
+                tableHtml += "<div class='div-table-col-number' style='width:" + tableDefinition.columns[c].width + "px;" + headerStyle + "'><div class='table-cell-content'>"+ tableDefinition.columns[c].title+"&nbsp;</div></div>";
             } 
             tableHtml += "</div>";
             var DisplayAllRows = false; // Default value = display all rows
@@ -535,14 +552,16 @@ module powerbi.extensibility.visual {
             for(var r=0; r<tableDefinition.rows.length; r++) {
                 var row = tableDefinition.rows[r];
                 var rowHtml = "";
-                rowHtml += "<div class='div-table-row' style='"+row.rowStyle+"'>";
+                var rowStyle = this.getStyle(row.rowStyle, tableDefinition);
+                rowHtml += "<div class='div-table-row' style='"+rowStyle+"'>";
                 var allColumnsAreBlank:boolean = true;
                 var rowCols = [];
                 for(var c=0; c<tableDefinition.columns.length; c++) {
                     var col = tableDefinition.columns[c];
+                    var colRowStyle = this.getStyle(col.rowStyle, tableDefinition);
                     var renderValue = "";
-                    var rowStyle = "width:" + col.width + "px;" +  col.rowStyle;
-                    var cellRowDataStyle = row.cellRowDataStyle;
+                    var rowStyle = "width:" + col.width + "px;" +  colRowStyle;
+                    var cellRowDataStyle = this.getStyle( row.cellRowDataStyle, tableDefinition );
                     if ( col.type === "Data" ) {
                         // Datakolumners innehåll hämtar vi från modellen direkt.
                         var v = this.GetValueForColumnRowCalculationByName(row, col);
@@ -559,7 +578,8 @@ module powerbi.extensibility.visual {
                     } 
                     else if ( col.type === "RowHeader") {
                         renderValue = row.title;
-                        cellRowDataStyle = "width:" + col.width + "px;" +  row.cellRowHeaderStyle;
+                        var cellRowHeaderStyle = this.getStyle(row.cellRowHeaderStyle, tableDefinition);
+                        cellRowDataStyle = "width:" + col.width + "px;" +  cellRowHeaderStyle;
                         rowCols.push( { rawValue: null, formatString: null } );
                     } 
                     else if ( col.type === "Calculation") {
