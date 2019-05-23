@@ -18,18 +18,25 @@ The abone image shows a summary table with an income statement with yellow highl
 	"rows": [...],
 	"headerRow": {...},
 	"displayheaderRowAllRows": true/false,
-	"additionalWidth": 5,
+	"additionalWidth": 5, // Obsolete from version 2.0.0
 	"reusableCSS" : [
 		{
 			"key": "#blackbackground#",
 			"value": "background-color:#000;color:#fff"
 		}
-	]
+	],
+	"masterHeader": {
+		"title": "Master header of table",
+		"headerStyle": "background-color:#000000;color:#fff;padding:5px",
+		"borderStyle": "border:1px solid #000000"
+    }	
 }
 ```
 * **additionalWidth** - additional width to add to the containing table. This property needs to be set is using borders on the columns. Add the total amount of horizontal border width to this cell.
 
 * **reusableCSS** - a way to define a css string that is reusable in all the style properties.
+
+* **masterHeader** - this property can be used to create a border and master header for the whole table. If no header/border are to be used, skip this property.
 
 ### Define columns - `columns`
 #### Example
@@ -52,7 +59,7 @@ The abone image shows a summary table with an income statement with yellow highl
 * **width** - the width in pixels of the column.
 * **type** - the type of column. Valid values are RowHeader, Data and Calculation. RowHeader is used for the first column that contains the header for each row. Data is used for a column that is bound to a measure. Calculation is used when a specific calculation should be applied at render-time.
 * **refName** - the name of the data bound measure/attribute. Only applicable when using RowHeader and Calculcation type.
-* **title** - the displayed title of the column.
+* **title** - the displayed title of the column. References to measures can be done by using eval(). To reference a measure called year can be made by writing "eval([Year])".
 * **calculationFormula** - the formula that should be applied when using the Calculation type. E.g. "[Savings SEK]/[Spend SEK]". Measures are referenced betweeen brackets ([]). Any formula and operator that can be evaluated using javaScript kan be used.
 * **format** - the formatting that should be applied when rendered. E.g. "#,0" and "0.0 %;-0.0 %;0.0 %".
 

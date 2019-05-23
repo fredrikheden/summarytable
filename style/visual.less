@@ -23,6 +23,11 @@ p {
     display: table;         
     border: none;
   }
+  .div-table-row-masterheader {
+    display: table-caption;
+    width: auto;
+    clear: both;
+  }  
   .div-table-row-header {
     display: table-row;
     width: auto;
@@ -36,12 +41,12 @@ p {
   }
 
   .div-table-col {
-    float: left; /* fix for  buggy browsers */
-    display: table-column;         
+//    float: left; /* fix for  buggy browsers */
+    display: table-cell;         
   }
   .div-table-col-number {
-    float: left; /* fix for  buggy browsers */
-    display: table-column;         
+//    float: left; /* fix for  buggy browsers */
+    display: table-cell;         
     text-align: right;
   }
   .table-cell-content {

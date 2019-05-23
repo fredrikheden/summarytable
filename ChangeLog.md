@@ -1,8 +1,12 @@
 # Change Log
 
-## Version v1.4.4 (not released yet)
+## Version v2.0.0 (not released yet)
+* Reference a measure in title fields of columns.
+* Possible to specify master header and border styles for the whole table.
+* Removed property for additionalWidth and made columns not wrap instead.
 * Added support for parenthesis in row reference names.
 * Added support for reusable styles.
+ 
 
 ## Version v1.4.3 (submitted, not released yet)
 * Added additionalWidth property to make it possible to work with border style/width.

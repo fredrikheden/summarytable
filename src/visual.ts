@@ -102,7 +102,7 @@ module powerbi.extensibility.visual {
         private editModeJsonEditor: HTMLTextAreaElement;
         private sampleJson : string;
         private displayAllRows : boolean = true;
-        private internalVersionNo: string = "1.4.4";
+        private internalVersionNo: string = "2.0.0";
 
         constructor(options: VisualConstructorOptions) {
             this.host = options.host;
@@ -452,11 +452,14 @@ module powerbi.extensibility.visual {
                 var i2 = s.indexOf("]", i1);
                 var name = s.substring(i1, i2+1);
                 var calcColDef = col;
+
+                var orgRefName = calcColDef.refName;
                 calcColDef.refName = name;
                 var columnValue = this.GetValueForColumnRowCalculationByName(row, calcColDef).rawValue;
                 resultExpression = resultExpression.replace(name, columnValue);
                 s = s.substr(i2+1);
                 i ++;
+                calcColDef.refName = orgRefName;
             }
             var format = col.format;
             if ( containsValue(row.format) ) {
@@ -494,6 +497,53 @@ module powerbi.extensibility.visual {
             return style2;
         }
 
+        private getStringInside(startChar: string, endChar: string, s: string, includeContaining: boolean) {
+            var i1 = s.indexOf(startChar, 0);
+            var i2 = s.indexOf(endChar, i1);
+            if ( i1 === -1 || i2 === -1 ) {
+                return null;
+            }
+            var s2 = s.substring(i1+startChar.length, i2);
+            if ( includeContaining ) {
+                return s.substring(i1, i2+endChar.length);
+            } 
+            else {
+                return s.substring(i1+startChar.length, i2);
+            }
+        }
+
+        private getTitle( col: any, tableDefinition: any) {
+            var i1 = col.title.indexOf("eval(", 0);
+            var i2 = col.title.indexOf(")", i1);
+            if ( i1 === -1 || i2 === -1 ) {
+                return col.title;
+            }
+            var expressionToEval = col.title.substring(i1+5, i2);
+            var colNameWithBrackets = this.getStringInside("[", "]", expressionToEval, true);
+            if ( colNameWithBrackets === null ){
+                return col.title;
+            }
+
+
+            var colIndex = null;
+            for(var i=0; i<this.model[0].values.length; i++) {
+                if ( this.model[0].values[i].refName === colNameWithBrackets ) {
+                    colIndex = i;
+                    break;
+                }
+            }
+            if ( colIndex === null ) {
+                return col.title;
+            }
+            var title = col.title;
+            title = replace2( title, colNameWithBrackets, this.model[0].values[colIndex].rawValue );
+            i1 = title.indexOf("eval(", 0);
+            i2 = title.lastIndexOf(")");
+            var v = title.substring(i1+5, i2);
+            var vEvaluated = title.substring(0, i1) + eval(v) + title.substring(i2+1);
+            return vEvaluated.trim();
+        }
+
         private RenderAllContent(targetElement: HTMLElement, tableDefinition: any) {
             if ( tableDefinition === null ) {
                 this.RenderNoContentText();
@@ -515,15 +565,29 @@ module powerbi.extensibility.visual {
                 return;
             }
 
+            // Border round hwole table 
+            var customTableStyle = "";
+            if ( typeof tableDefinition.masterHeader !== 'undefined' ) {
+                customTableStyle = ";" + tableDefinition.masterHeader.borderStyle + ";";
+            }
             var w = this.getTableTotalWidth(tableDefinition);
-            var tableHtml = "<div class='tablewrapper'><div class='div-table' style='width:"+w+"px'>";
+            //var tableHtml = "<div class='tablewrapper'><div class='div-table' style='width:"+w+"px"+customTableStyle+"''>"; // TODO: Det verkar som att bredden inte behövs - det ställer bara till det när det gäller additionalwidth... Nackdelen är att vi inte får en scrollbar om vi förminskar fönstret...
+            var tableHtml = "<div class='tablewrapper'><div class='div-table' style='"+customTableStyle+"''>";
+
             
             // Table header row
             var rowStyle = this.getStyle(tableDefinition.headerRow.rowStyle, tableDefinition);
+
+            // Master header
+            if ( typeof tableDefinition.masterHeader !== 'undefined' ) {
+                tableHtml += "<div class='div-table-row-masterheader'  style='"+tableDefinition.masterHeader.headerStyle+"'><div>"+tableDefinition.masterHeader.title+"</div></div>";
+            }
+
             tableHtml += "<div class='div-table-row-header' style='" + rowStyle + "'>";
             for(var c=0; c<tableDefinition.columns.length; c++) {
                 var headerStyle = this.getStyle(tableDefinition.columns[c].headerStyle, tableDefinition);
-                tableHtml += "<div class='div-table-col-number' style='width:" + tableDefinition.columns[c].width + "px;" + headerStyle + "'><div class='table-cell-content'>"+ tableDefinition.columns[c].title+"&nbsp;</div></div>";
+                var headerTitle = this.getTitle(tableDefinition.columns[c], tableDefinition);
+                tableHtml += "<div class='div-table-col-number' style='width:"+tableDefinition.columns[c].width+"px;min-width:" + tableDefinition.columns[c].width + "px;" + headerStyle + "'><div class='table-cell-content'>"+ headerTitle +"</div></div>";
             } 
             tableHtml += "</div>";
             var DisplayAllRows = false; // Default value = display all rows
@@ -579,7 +643,9 @@ module powerbi.extensibility.visual {
                     else if ( col.type === "RowHeader") {
                         renderValue = row.title;
                         var cellRowHeaderStyle = this.getStyle(row.cellRowHeaderStyle, tableDefinition);
-                        cellRowDataStyle = "width:" + col.width + "px;" +  cellRowHeaderStyle;
+                        // TODO: behövs bredden verkligen här. Just nu tar vi bort den.
+                        //cellRowDataStyle = "width:" + col.width + "px;" +  cellRowHeaderStyle;
+                        cellRowDataStyle = cellRowHeaderStyle;
                         rowCols.push( { rawValue: null, formatString: null } );
                     } 
                     else if ( col.type === "Calculation") {
@@ -598,6 +664,20 @@ module powerbi.extensibility.visual {
                         renderValue = "";
                         rowCols.push( { rawValue: null, formatString: null } );
                     }
+                    // Check if we should ignore presentation of this field for this column.
+                    var shouldHideValue = false;
+                    if ( typeof row.hideForColumns !== 'undefined' ) {
+                        for(var i=0;i < row.hideForColumns.length; i++ ) {
+                            if ( row.hideForColumns[i] === col.refName ) {
+                                shouldHideValue = true;
+                                break;
+                            }
+                        }
+                    }
+                    if ( shouldHideValue) {
+                        renderValue = "&nbsp;";
+                    }
+
                     if ( row.formula.length === 0 ) {
                         renderValue = "";
                     }
