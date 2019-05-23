@@ -8,7 +8,7 @@
 * Added support for reusable styles.
  
 
-## Version v1.4.3 (submitted, not released yet)
+## Version v1.4.3 
 * Added additionalWidth property to make it possible to work with border style/width.
 
 ## Version v1.4.2
