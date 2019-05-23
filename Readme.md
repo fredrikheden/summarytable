@@ -29,7 +29,7 @@ The abone image shows a summary table with an income statement with yellow highl
 		"title": "Master header of table",
 		"headerStyle": "background-color:#000000;color:#fff;padding:5px",
 		"borderStyle": "border:1px solid #000000"
-    }	
+	}	
 }
 ```
 * **additionalWidth** - additional width to add to the containing table. This property needs to be set is using borders on the columns. Add the total amount of horizontal border width to this cell.
