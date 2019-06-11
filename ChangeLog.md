@@ -1,6 +1,7 @@
 # Change Log
 
 ## Version v2.0.0 (not released yet)
+* Support for the new 2.6 api.
 * Better handling of wrapped columns.
 * Possible to use a json string from the data model (name it "json" and it will be used)
 * Reference a measure in title fields of columns.
