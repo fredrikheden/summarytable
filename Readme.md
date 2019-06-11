@@ -100,5 +100,4 @@ The abone image shows a summary table with an income statement with yellow highl
 * If a row calculation is used in combination with a column calculation, the row calculation is done before the column calculation.
 * Hover-effects are not supported.
 * Expression-based css styles are not supported (e.g. settings a background color based on an expression).
-* Expression-based column header titles are not supported.
 * Cross-filtering other visuals (by clicking on a row) is not supported.
