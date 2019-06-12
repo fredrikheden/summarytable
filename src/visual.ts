@@ -48,7 +48,6 @@ import { VisualSettings } from "./settings";
 import { Renderer } from "./renderer";
 import { RendererEditMode } from "./rendererEditMode";
 
-
  function visualTransform(options: VisualUpdateOptions, thisRef: Visual) : any {            
     let dataViews = options.dataViews;
     var a = options.dataViews[0].metadata.columns[1];

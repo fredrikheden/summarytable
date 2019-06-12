@@ -4,21 +4,26 @@ import { Visual } from './visual';
 import { Renderer } from "./renderer";
 import { VisualSettings } from "./settings";
 import * as Utils from "./jsUtils";
+import { RendererEditMode_Designer } from "./rendererEditMode_Designer";
+import { RendererEditMode_RawJson } from "./rendererEditMode_RawJson";
+
 
 export class RendererEditMode {
-    private visual: Visual;
-    private renderer: Renderer;
-    private editModeJsonEditor: HTMLTextAreaElement = null;
+    public visual: Visual;
+    public renderer: Renderer;
+    public editorContainer: HTMLDivElement = null;
+    public btnSave : HTMLInputElement;
+    public btnLoadFromFieldList : HTMLInputElement;
+    private designMode: boolean = false;
 
     constructor(visual: Visual, renderer: Renderer) {
         this.visual = visual;
-        this.editModeJsonEditor = document.createElement("textarea");
         this.renderer = renderer;
     }
 
     public RenderEditMode(target: HTMLElement,  settings: VisualSettings) {
-        var btnSave : HTMLInputElement = document.createElement("input");
-        var btnLoadFromFieldList : HTMLInputElement = document.createElement("input");
+        var btnSave : HTMLInputElement = this.btnSave = document.createElement("input");
+        var btnLoadFromFieldList : HTMLInputElement = this.btnLoadFromFieldList = document.createElement("input");
         btnSave.type = "button";
         btnSave.value = "Save";
         btnSave.className = "inputButton";
@@ -31,57 +36,34 @@ export class RendererEditMode {
         var divContainer : HTMLDivElement = document.createElement("div");
         divContainer.style.height = "94%"; // With 100% we get scrollbars in edit mode.
         target.appendChild(divContainer);
-        var txtJson: HTMLTextAreaElement = this.editModeJsonEditor = document.createElement("textarea");
-        var divRenderInEditMode = document.createElement("div");
-        divContainer.appendChild(txtJson);
-        divContainer.appendChild(divRenderInEditMode);
-        txtJson.className = "TextCodeBox";
-        txtJson.value = settings.dataPoint.tableConfiguration;
+        this.editorContainer = divContainer;  
 
-        if ( !Utils.containsValue(txtJson.value)  ) {
-            this.EditModeCreateTemplateFromFieldList();
-        }      
-
-        txtJson.onkeydown = function(e){
-            if(e.keyCode==9 || e.which==9){
-                e.preventDefault();
-                var s = txtJson.selectionStart;
-                txtJson.value = txtJson.value.substring(0,txtJson.selectionStart) + "\t" + txtJson.value.substring(txtJson.selectionEnd);
-                txtJson.selectionEnd = s+1;
-            }
+        if ( this.designMode ) {
+            // Render design mode editor here
+            var EditModeDesigner = new RendererEditMode_Designer(this);
+            EditModeDesigner.RenderEditMode_Designer(this.editorContainer, settings);
         }
-        txtJson.onkeyup = function(e){
-            try {
-                var tableDefTmp = JSON.parse(txtJson.value);
-                that.renderer.RenderAllContent(divRenderInEditMode, tableDefTmp);    
-            } 
-            catch(e) {
-                divRenderInEditMode.innerHTML = "No valid JSON.";
-            }
+        else {
+            // Render raw json editor here
+            var EditModeRawJson = new RendererEditMode_RawJson(this);
+            EditModeRawJson.RenderEditMode_RawJson(this.editorContainer, settings);
         }
-        var that = this;
-        btnLoadFromFieldList.onclick = function(e) {
-            that.EditModeCreateTemplateFromFieldList();
-            txtJson.onkeyup(null);
-        }
-        btnSave.onclick = function(e) {
-            settings.dataPoint.tableConfiguration = txtJson.value;                
-            let general: VisualObjectInstance[] = [{
-                objectName: "dataPoint",
-                displayName: "Data colors",
-                selector: null,
-                properties: {
-                    tableConfiguration: txtJson.value
-                }
-            }];
-            that.visual.getHost().persistProperties(general);
-        }
-
-        var tableDefTmp = JSON.parse(txtJson.value);
-        that.renderer.RenderAllContent(divRenderInEditMode, tableDefTmp);
     }
 
-    private EditModeCreateTemplateFromFieldList() {
+    public Save(settings: VisualSettings, json:string) {
+        settings.dataPoint.tableConfiguration = json;            
+        let general: VisualObjectInstance[] = [{
+            objectName: "dataPoint",
+            displayName: "Data colors",
+            selector: null,
+            properties: {
+                tableConfiguration: json
+            }
+        }];
+        this.visual.getHost().persistProperties(general);
+    }
+
+    public GetTemplateFromFieldList():string {
         // Columns
         var model = this.visual.getModel();
         var colJson = "";
@@ -145,6 +127,6 @@ export class RendererEditMode {
         `;
         fullJson = fullJson.replace(/%COLS%/g, colJson); 
         fullJson = fullJson.replace(/%ROWS%/g, rowJson); 
-        this.editModeJsonEditor.value = fullJson;
+        return fullJson;
     }
 }
