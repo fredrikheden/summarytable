@@ -1,5 +1,5 @@
 @import (less) "node_modules/powerbi-visuals-utils-formattingutils/lib/index.css";
-
+@import "../node_modules/bootstrap-css-only/css/bootstrap.min.css";
 p {
     font-size: 20px;
     font-weight: bold;
@@ -98,4 +98,30 @@ p {
 
 .inputButton:active {
   background-color: #000;
+}
+
+div.newEditor  button.btn-secondary{
+  font-size: 12px;
+}
+
+div.newEditor .card-body{
+  padding: 5px;
+}
+
+div.newEditor .form-group{
+ margin-bottom: 3px;
+}
+
+div.newEditor .nav.flex-column.nav-pills {
+  overflow-x: auto;
+  overflow-y:auto;
+  flex-wrap: nowrap;
+  max-height: 300px;
+}
+
+div.newEditor * {
+  font-size:12px!important;
+  font-family: sans-serif;
+  font-weight: 100;
+  
 }

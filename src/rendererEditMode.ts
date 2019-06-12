@@ -14,7 +14,7 @@ export class RendererEditMode {
     public editorContainer: HTMLDivElement = null;
     public btnSave : HTMLInputElement;
     public btnLoadFromFieldList : HTMLInputElement;
-    private designMode: boolean = false;
+    private designMode: boolean = true;
 
     constructor(visual: Visual, renderer: Renderer) {
         this.visual = visual;
