@@ -5,7 +5,7 @@
 
 ## Version v2.0.0 (not released yet)
 * Support for the new 2.6 api.
-* Better handling of wrapped columns.
+* Better handling of wrapped columns. Note that there are minor changes to the width of the column due to this fix, which can make older summary tables appear wider. To correct this, decrease the width of the column.
 * Possible to use a json string from the data model (name it "json" and it will be used)
 * Reference a measure in title fields of columns.
 * Possible to specify master header and border styles for the whole table.
