@@ -1,23 +1,21 @@
 // TODO: Cross filtering by clicking on a row.
-// TODO: Möjlighet att använda themes.
+// TODO: Possibility to use themes.
 // TODO: What does n/a mean? Is it different from a blank value?
-// TODO: Möjlighet att göra drilldown. Kanske lämpligt att göra detta som en separat rad som innehåller aggregeringen och ett antal andra rader som presenteras under raden. På så sätt kan man definiera en parent på varje rad... Det skulle vara bra att kunna definiera detta mer dynamiska, så att man inte behöver skriva varje rad (kanske möjligt om man bara tillåter en rad).
-// TODO: Möjlighet att referera rader som ligger "nedanför" (idag måste man göra detta ovanför)
+// TODO: Possibililty to do drill-down (summaryMatrix)
+// TODO: Possibility to reference rows below.
 
 // OK: Default font/size. => Använd border style till detta.
-// OK: Hantera radbrytningar.
+// OK: Manage line breaks.
 // OK: Reference a measure (column) in title fields
 // OK: Master header
-// OK Use json from dataset.
+// OK: Use json from dataset.
 
-
-// TODO: Lägg till möjlighet att använda ett expression för att sätta styles.
-// TODO: Använd en bättre kod-editor för highlighting m.m.
-// TODO: Dynamiska kolumnnamn (baserade på expressions)
-// TODO: Cross-filter
-// TODO: Kunna välja mellan olika templates (som bara applicerar styles)
-// TODO: Felhantering
-// TODO: Separat style för hover-effekt på radnivå.
+// TODO: Add possibility to use expressions for styles.
+// TODO: Use a better code editor with highlighting
+// OK: Dynamic column namnes, based on expressions.
+// TODO: Cross-filter by clicking on a row.
+// TODO: Make it possible fo choose from different predefined style templates.
+// TODO: Separate hover style effect.
 
 // Format %: 0.0 %;-0.0 %;0.0 %               #,0
 // Format number thousand separator: #,0
@@ -35,6 +33,7 @@ import EnumerateVisualObjectInstancesOptions = powerbi.EnumerateVisualObjectInst
 import VisualObjectInstance = powerbi.VisualObjectInstance;
 import DataView = powerbi.DataView;
 import VisualObjectInstanceEnumerationObject = powerbi.VisualObjectInstanceEnumerationObject;
+
 // powerbi.extensibility.utils.formatting
 import {
     valueFormatter as vf,

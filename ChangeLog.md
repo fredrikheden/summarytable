@@ -1,5 +1,8 @@
 # Change Log
 
+## Version v3.0.0 (not released yet)
+* Code restructured and prepared for new types of editors.
+
 ## Version v2.0.0 (not released yet)
 * Support for the new 2.6 api.
 * Better handling of wrapped columns.
