@@ -19,13 +19,13 @@ export class Renderer {
     }
 
     private RenderNoContentText(target: HTMLElement) {
-        var a = document.createElement("div");
-        a.innerHTML = "No table definition defined. Edit the table definition by pressing the edit link in the upper right menu.";
-        target.appendChild(a);
+        var t = document.createTextNode("No table definition defined. Edit the table definition by pressing the edit link in the upper right menu.");
+        target.appendChild(t);
     }
 
     private RenderNonNumericColumns(target: HTMLElement) {
-        target.innerHTML = "Columns other than the first one contains non-numeric fields. This is not allowed.";
+        var t = document.createTextNode("Columns other than the first one contains non-numeric fields. This is not allowed.");
+        target.appendChild(t);
     }
 
     private GetValueForColumnRowCalculationByIndex(row:any, colIndex: number, colDef: any) : any {
@@ -212,9 +212,67 @@ export class Renderer {
         return vEvaluated.trim();
     }
 
+    private appendTextToNode(targetNode: HTMLElement, text:string) {
+        var a = text.split("<br>");
+        if ( a.length === 0) {
+            targetNode.appendChild( document.createTextNode(text) );
+        } else {
+            for (var i=0; i<a.length; i++) {
+                targetNode.appendChild( document.createTextNode(a[i]) );
+                if ( i !== a.length-1 ) {
+                    // Do not add a br to the last one.
+                    targetNode.appendChild( document.createElement("br") );
+                }
+            }
+        }
+    }
 
+    private htmlGetMasterHeader(tableDefinition: any):HTMLDivElement {
+        //tableHtml += "<div class='div-table-row-masterheader'  style='"+tableDefinition.masterHeader.headerStyle+"'><div>"+tableDefinition.masterHeader.title+"</div></div>";
+        var dTableMasterHeader = document.createElement("div");
+        dTableMasterHeader.className = "div-table-row-masterheader";
+        dTableMasterHeader.setAttribute("style", tableDefinition.masterHeader.headerStyle);
+        var dTableMasterHeaderContents = document.createElement("div");
+        dTableMasterHeader.appendChild(dTableMasterHeaderContents);
+        this.appendTextToNode( dTableMasterHeaderContents, tableDefinition.masterHeader.title );
+        return dTableMasterHeader;
+    }
+
+    private htmlGetColumnHeader(tableDefinition: any, column: any):HTMLDivElement {
+        //tableHtml += "<div class='div-table-col-number table-cell-content' style='max-width:"+tableDefinition.columns[c].width+"px;width:"+tableDefinition.columns[c].width+"px;min-width:" + tableDefinition.columns[c].width + "px;" + headerStyle + "'><div class=' table-cell-content-inner'>"+ headerTitle +"</div></div>";
+        var headerStyle = this.getStyle(column.headerStyle, tableDefinition);
+        var headerTitle = this.getTitle(column, tableDefinition);
+        var dDiv1 = document.createElement("div");
+        dDiv1.className = "div-table-col-number table-cell-content";
+        dDiv1.setAttribute("style", "max-width:" + column.width + "px;width:" + column.width + "px;min-width:" + column.width + "px;" + headerStyle);
+        var dDiv2 = document.createElement("div");
+        dDiv1.appendChild(dDiv2);
+        dDiv2.className = "table-cell-content-inner";
+        this.appendTextToNode( dDiv2, headerTitle );
+        return dDiv1;
+    }
+
+    private htmlGetColumnContent(rowStyle: string, cellRowDataStyle: string, renderValue: string):HTMLDivElement {
+        //var colHtml = "<div class='div-table-col-number table-cell-content' style='" + rowStyle + ";"+cellRowDataStyle+"'><div class=' table-cell-content-inner'>"+renderValue+"</div></div>";
+        var dDiv1 = document.createElement("div");
+        dDiv1.className = "div-table-col-number table-cell-content";
+        dDiv1.setAttribute("style", rowStyle + ";" + cellRowDataStyle);
+        var dDiv2 = document.createElement("div");
+        dDiv1.appendChild(dDiv2);
+        dDiv2.className = "table-cell-content-inner";
+        dDiv2.appendChild(document.createTextNode(renderValue));
+        return dDiv1;
+    }
+
+    private clearHtmlElement(element: HTMLElement) {
+        while(element.firstChild){
+            element.removeChild(element.firstChild);
+        }
+    }
 
     public RenderAllContent(targetElement: HTMLElement, tableDefinition: any) {
+        this.clearHtmlElement(targetElement);
+
         var model = this.visual.getModel();
 
         if ( tableDefinition === null ) {
@@ -243,26 +301,37 @@ export class Renderer {
             customTableStyle = ";" + tableDefinition.masterHeader.borderStyle + ";";
         }
         var w = this.getTableTotalWidth(tableDefinition);
-        //var tableHtml = "<div class='tablewrapper'><div class='div-table' style='width:"+w+"px"+customTableStyle+"''>"; // TODO: Det verkar som att bredden inte behövs - det ställer bara till det när det gäller additionalwidth... Nackdelen är att vi inte får en scrollbar om vi förminskar fönstret...
-        var tableHtml = "<div class='tablewrapper'><div class='div-table' style='"+customTableStyle+"''>";
+        //var tableHtml = "<div class='tablewrapper'><div class='div-table' style='"+customTableStyle+"''>";
+        var dTableWrapper = document.createElement("div");
+        dTableWrapper.className = "tablewrapper";
+        var dTable = document.createElement("div");
+        dTable.className = "div-table";
+        dTable.setAttribute("style", customTableStyle);
+        dTableWrapper.appendChild(dTable);
 
-        
+
         // Table header row
         var rowStyle = this.getStyle(tableDefinition.headerRow.rowStyle, tableDefinition);
 
         // Table header
         if ( typeof tableDefinition.masterHeader !== 'undefined' ) {
-            tableHtml += "<div class='div-table-row-masterheader'  style='"+tableDefinition.masterHeader.headerStyle+"'><div>"+tableDefinition.masterHeader.title+"</div></div>";
+            //tableHtml += "<div class='div-table-row-masterheader'  style='"+tableDefinition.masterHeader.headerStyle+"'><div>"+tableDefinition.masterHeader.title+"</div></div>";
+            dTable.appendChild( this.htmlGetMasterHeader(tableDefinition) );
         }
 
-        tableHtml += "<div class='div-table-row-header' style='" + rowStyle + "'>";
+        //tableHtml += "<div class='div-table-row-header' style='" + rowStyle + "'>";
+        var dTableRowHeader = document.createElement("div");
+        dTableRowHeader.className = "div-table-row-header";
+        dTableRowHeader.setAttribute("style", rowStyle);
+        dTable.appendChild(dTableRowHeader);
+
         for(var c=0; c<tableDefinition.columns.length; c++) {
-            var headerStyle = this.getStyle(tableDefinition.columns[c].headerStyle, tableDefinition);
-            var headerTitle = this.getTitle(tableDefinition.columns[c], tableDefinition);
-            //tableHtml += "<div class='div-table-col-number' style='max-width:"+tableDefinition.columns[c].width+"px;width:"+tableDefinition.columns[c].width+"px;min-width:" + tableDefinition.columns[c].width + "px;" + headerStyle + "'><div class='table-cell-content'>"+ headerTitle +"</div></div>";
-            tableHtml += "<div class='div-table-col-number table-cell-content' style='max-width:"+tableDefinition.columns[c].width+"px;width:"+tableDefinition.columns[c].width+"px;min-width:" + tableDefinition.columns[c].width + "px;" + headerStyle + "'><div class=' table-cell-content-inner'>"+ headerTitle +"</div></div>";
+            //var headerStyle = this.getStyle(tableDefinition.columns[c].headerStyle, tableDefinition);
+            //var headerTitle = this.getTitle(tableDefinition.columns[c], tableDefinition);
+            //tableHtml += "<div class='div-table-col-number table-cell-content' style='max-width:"+tableDefinition.columns[c].width+"px;width:"+tableDefinition.columns[c].width+"px;min-width:" + tableDefinition.columns[c].width + "px;" + headerStyle + "'><div class=' table-cell-content-inner'>"+ headerTitle +"</div></div>";
+            dTable.appendChild( this.htmlGetColumnHeader(tableDefinition, tableDefinition.columns[c]) );
         } 
-        tableHtml += "</div>";
+        //tableHtml += "</div>";
 
         
         var DisplayAllRows = false; // Default value = display all rows
@@ -292,7 +361,10 @@ export class Renderer {
             var row = tableDefinition.rows[r];
             var rowHtml = "";
             var rowStyle = this.getStyle(row.rowStyle, tableDefinition);
-            rowHtml += "<div class='div-table-row' style='"+rowStyle+"'>";
+            //rowHtml += "<div class='div-table-row' style='"+rowStyle+"'>";
+            var dRow = document.createElement("div");
+            dRow.className = "div-table-row";
+            dRow.setAttribute("style", rowStyle);
             var allColumnsAreBlank:boolean = true;
             var rowCols = [];
             for(var c=0; c<tableDefinition.columns.length; c++) {
@@ -305,10 +377,9 @@ export class Renderer {
                     // Datakolumners innehåll hämtar vi från modellen direkt.
                     var v = this.GetValueForColumnRowCalculationByName(row, col);
                     allColumnsAreBlank = v.rawValue !== null ? false : allColumnsAreBlank;
-                    //renderValue = v === null ? "" : v.formattedValue;
                     if ( isNaN(Number(v.rawValue)) || v.rawValue === null) {
-                        renderValue = "&nbsp;"; 
-                        //renderValue = v.rawValue;   
+                        //renderValue = "&nbsp;"; 
+                        renderValue = "\u00A0";
                     } else {
                         renderValue = v.formattedValue;
                     }
@@ -318,8 +389,6 @@ export class Renderer {
                 else if ( col.type === "RowHeader") {
                     renderValue = row.title;
                     var cellRowHeaderStyle = this.getStyle(row.cellRowHeaderStyle, tableDefinition);
-                    // TODO: behövs bredden verkligen här. Just nu tar vi bort den.
-                    //cellRowDataStyle = "width:" + col.width + "px;" +  cellRowHeaderStyle;
                     cellRowDataStyle = cellRowHeaderStyle;
                     rowCols.push( { rawValue: null, formatString: null } );
                 } 
@@ -330,7 +399,8 @@ export class Renderer {
                     if ( renderValue.toLowerCase() !== "(blank)" && renderValue.toLowerCase() !== "nan" ) {
                         allColumnsAreBlank = false;
                     } else {
-                        renderValue = "&nbsp;";
+                        //renderValue = "&nbsp;";
+                        renderValue = "\u00A0";
                     }
                     calcValue.formatString = col.format;
                     rowCols.push( calcValue );
@@ -350,21 +420,21 @@ export class Renderer {
                     }
                 }
                 if ( shouldHideValue) {
-                    renderValue = "&nbsp;";
+                    //renderValue = "&nbsp;";
+                    renderValue = "\u00A0";
                 }
 
                 if ( row.formula.length === 0 ) {
                     renderValue = "";
                 }
-                //var colHtml = "<div class='div-table-col-number' style='" + rowStyle + "'><div class='table-cell-content' style='"+cellRowDataStyle+"'>"+renderValue+"</div></div>";
-                var colHtml = "<div class='div-table-col-number table-cell-content' style='" + rowStyle + ";"+cellRowDataStyle+"'><div class=' table-cell-content-inner'>"+renderValue+"</div></div>";
-                rowHtml += colHtml;
+                //var colHtml = "<div class='div-table-col-number table-cell-content' style='" + rowStyle + ";"+cellRowDataStyle+"'><div class=' table-cell-content-inner'>"+renderValue+"</div></div>";
+                //rowHtml += colHtml;
+                dRow.appendChild( this.htmlGetColumnContent(rowStyle, cellRowDataStyle, renderValue) );
             } 
-            rowHtml += "</div>";
+            //rowHtml += "</div>";
             if ( !allColumnsAreBlank || row.formula.length === 0 || DisplayAllRows ) {
-                //tableHtml += rowHtml;
             } else {
-                rowHtml = "";
+                //rowHtml = "";
             }
             // Add calculated row to model (to be able to reuse it in later calculations)
             var isCalculatedRow = true;
@@ -389,12 +459,18 @@ export class Renderer {
                 model.push(newModelRow);
             }
             if ( row.visible ) {
-                tableHtml += rowHtml;
+                //tableHtml += rowHtml;
+                if ( !allColumnsAreBlank || row.formula.length === 0 || DisplayAllRows ) {
+                    dTable.appendChild(dRow);
+                } else {
+                    // Do nothing
+                }
             }
         } 
         
-        tableHtml += "</div></div>";
-        targetElement.innerHTML = tableHtml;
+        //tableHtml += "</div></div>";
+        //targetElement.innerHTML = tableHtml;
+        targetElement.appendChild(dTableWrapper);
     }    
 
 }

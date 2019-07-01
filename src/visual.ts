@@ -86,16 +86,18 @@ export class Visual implements IVisual {
     private tableDefinition: any;
     private model: any;
     private host: any;
-    private internalVersionNo: string = "3.0.0";
+    private internalVersionNo: string = "3.0.1";
     public tableDefinitionFromDataset: any;
     private renderer: Renderer;
     private rendererEditMode: RendererEditMode;
+    private events: powerbi.extensibility.IVisualEventService;
 
     constructor(options: VisualConstructorOptions) {
         this.host = options.host;
         this.target = options.element;
         this.renderer = new Renderer(this);
         this.rendererEditMode = new RendererEditMode(this, this.renderer);
+        this.events = options.host.eventService;
     }
 
     public getModel(): any {
@@ -134,15 +136,34 @@ export class Visual implements IVisual {
     public RenderVersionNo() {
         var a = document.createElement("div");
         a.style.display = "none";
-        a.innerHTML = "Version: " + this.internalVersionNo;
+        a.appendChild( document.createTextNode("Version: " + this.internalVersionNo) );
+        this.target.appendChild(a);
+    }
+
+    public RenderErrorMessage(err: any) {
+        var a = document.createTextNode("ERROR: " + err);
         this.target.appendChild(a);
     }
  
     private ClearAllContent() {
-        this.target.innerHTML = "";
+        while(this.target.firstChild){
+            this.target.removeChild(this.target.firstChild);
+        }
     }
 
     public update(options: VisualUpdateOptions) {
+        try {
+            this.events.renderingStarted(options);
+            this.mainUpdate(options);
+            this.events.renderingFinished(options);
+        }
+        catch( err ) {
+            this.events.renderingFailed(options, err);
+            this.RenderErrorMessage(err);
+        }
+    }
+
+    public mainUpdate(options: VisualUpdateOptions) {
         var w = options.viewport.width;
         var h = options.viewport.height;
         this.settings = Visual.parseSettings(options && options.dataViews && options.dataViews[0]);
@@ -158,12 +179,15 @@ export class Visual implements IVisual {
                 this.ClearAllContent();
                 this.renderer.RenderAllContent(this.target, this.tableDefinition);
             } else {
-                this.target.innerHTML = "<div>"+errorMsg+"</div>"
+                this.ClearAllContent();
+                this.target.appendChild(document.createTextNode(errorMsg));
             }
         }
         this.target.style.overflow = "auto";
 
         this.RenderVersionNo();
+
+        this.events.renderingFinished(options);
     }    
 
     private static parseSettings(dataView: DataView): VisualSettings {

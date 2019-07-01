@@ -1,5 +1,8 @@
 # Change Log
 
+## Version v3.0.1 (not released yet)
+* Code improved to support certification (support of rendering events and no user of innerHtml)
+
 ## Version v3.0.0 (not released yet)
 * Code restructured and prepared for new types of editors.
 

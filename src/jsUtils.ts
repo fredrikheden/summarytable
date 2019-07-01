@@ -23,3 +23,10 @@ export function replace2(str, strToFind, strToReplace) {
     var result = str.replace(regEx, strR);
     return result;
 }
+
+
+export function clearHtmlElement(element) {
+    while(element.firstChild){
+        element.removeChild(element.firstChild);
+    }
+}

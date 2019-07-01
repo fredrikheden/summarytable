@@ -39,7 +39,8 @@ export class RendererEditMode_RawJson {
                 that.rendererEditModeBase.renderer.RenderAllContent(divRenderInEditMode, tableDefTmp);    
             } 
             catch(e) {
-                divRenderInEditMode.innerHTML = "No valid JSON.";
+                Utils.clearHtmlElement(divRenderInEditMode);
+                divRenderInEditMode.appendChild(document.createTextNode("No valid JSON."));
             }
         }
         

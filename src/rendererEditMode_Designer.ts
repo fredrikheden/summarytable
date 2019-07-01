@@ -15,7 +15,7 @@ export class RendererEditMode_Designer {
 
     public RenderEditMode_Designer(target: HTMLElement,  settings: VisualSettings) {
         var a = document.createElement("div");
-        a.innerHTML = "Designer does here...";
+        a.appendChild( document.createTextNode( "Designer does here...") );
         target.appendChild(a);
     }
 
