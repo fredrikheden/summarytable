@@ -1,6 +1,10 @@
 # Change Log
 
-## Version v3.0.1 (not released yet)
+## Version v3.0.2 (not released yet)
+* Added support for culture (but is seems to still be a Power BI issue with this: https://github.com/microsoft/powerbi-visuals-utils-formattingutils/issues/36).
+* Added tslint.json (certification requirement).
+
+## Version v3.0.1 (submitted, not released yet)
 * Code improved to support certification (support of rendering events and no user of innerHtml)
 
 ## Version v3.0.0 (not released yet)

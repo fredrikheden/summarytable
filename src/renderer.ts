@@ -13,6 +13,7 @@ import { Visual } from './visual';
 
 export class Renderer {
     private visual: Visual;
+    private tableDefinition: any; // This variable is set in renderAllContent
 
     constructor(visual: Visual) {
         this.visual = visual;
@@ -51,7 +52,7 @@ export class Renderer {
         if ( Utils.containsValue(row.format) ) { // Only use row formatting if it is defined
             format = row.format;
         }
-        var formattedValue = this.FormatValue(rawValue, format, valueFormatter);
+        var formattedValue = this.FormatValue(rawValue, format);
         return { formattedValue: formattedValue, rawValue: rawValue };
     }
 
@@ -66,8 +67,22 @@ export class Renderer {
     }
 
 
-    private FormatValue(rawValue, format, valueFormatter) {
-        var formattedValue = valueFormatter.format(rawValue, format);
+    private FormatValue(rawValue, format) {
+        // TODO: improve performance by creating the customFormatter globally.
+        // culture: "en-US"
+        var customFormatter = null;
+        if ( Utils.containsValue( this.tableDefinition.culture ) ) {
+            customFormatter = valueFormatter.create({
+                cultureSelector: "zh-TW", // this.tableDefinition.culture,
+                format: format
+            });
+        } else {
+            customFormatter = valueFormatter.create({
+                cultureSelector: this.visual.host.locale,
+                format: format
+            });
+        }
+        var formattedValue = customFormatter.format(rawValue);
         return formattedValue;
     }
 
@@ -129,15 +144,15 @@ export class Renderer {
             format = row.format;
         }
         var evalValue = this.EvalFormula(resultExpression);        
-        var resultFormatted = this.FormatValue(evalValue, format, valueFormatter);
+        var resultFormatted = this.FormatValue(evalValue, format);
         return { formattedValue: resultFormatted, rawValue: evalValue };
     }
 
-    private getTableTotalWidth(tableDefinition: any):number {
+    private getTableTotalWidth():number {
         var w = 0;
-        var additionalWidth = tableDefinition.additionalWidth;
-        for(var c=0; c<tableDefinition.columns.length; c++) {
-            w += tableDefinition.columns[c].width;
+        var additionalWidth = this.tableDefinition.additionalWidth;
+        for(var c=0; c<this.tableDefinition.columns.length; c++) {
+            w += this.tableDefinition.columns[c].width;
         }
         if ( !isNaN(additionalWidth) ) {
             w += additionalWidth;
@@ -146,19 +161,19 @@ export class Renderer {
     }
 
     // Hämtar ut en style och applicerar eventuella globla styles (angivna i reusableCSS)
-    private getStyle(style: string, tableDefinition: any) {
+    private getStyle(style: string) {
         if ( typeof(style) === "undefined" ) {
             return "";
         }
-        if ( typeof(tableDefinition.reusableCSS) === "undefined" ) {
+        if ( typeof(this.tableDefinition.reusableCSS) === "undefined" ) {
             return style;
         }
-        if ( tableDefinition.reusableCSS.length === 0 ) {
+        if ( this.tableDefinition.reusableCSS.length === 0 ) {
             return style;
         }
         var style2 = style;
-        for( var i=0; i<tableDefinition.reusableCSS.length; i++) {
-            style2 = Utils.replace2( style2, tableDefinition.reusableCSS[i].key, tableDefinition.reusableCSS[i].value );
+        for( var i=0; i<this.tableDefinition.reusableCSS.length; i++) {
+            style2 = Utils.replace2( style2, this.tableDefinition.reusableCSS[i].key, this.tableDefinition.reusableCSS[i].value );
         }
         return style2;
     }
@@ -178,7 +193,7 @@ export class Renderer {
         }
     }
 
-    private getTitle( col: any, tableDefinition: any) {
+    private getTitle( col: any) {
         var model = this.visual.getModel();
 
         var i1 = col.title.indexOf("eval(", 0);
@@ -227,21 +242,21 @@ export class Renderer {
         }
     }
 
-    private htmlGetMasterHeader(tableDefinition: any):HTMLDivElement {
+    private htmlGetMasterHeader():HTMLDivElement {
         //tableHtml += "<div class='div-table-row-masterheader'  style='"+tableDefinition.masterHeader.headerStyle+"'><div>"+tableDefinition.masterHeader.title+"</div></div>";
         var dTableMasterHeader = document.createElement("div");
         dTableMasterHeader.className = "div-table-row-masterheader";
-        dTableMasterHeader.setAttribute("style", tableDefinition.masterHeader.headerStyle);
+        dTableMasterHeader.setAttribute("style", this.tableDefinition.masterHeader.headerStyle);
         var dTableMasterHeaderContents = document.createElement("div");
         dTableMasterHeader.appendChild(dTableMasterHeaderContents);
-        this.appendTextToNode( dTableMasterHeaderContents, tableDefinition.masterHeader.title );
+        this.appendTextToNode( dTableMasterHeaderContents, this.tableDefinition.masterHeader.title );
         return dTableMasterHeader;
     }
 
-    private htmlGetColumnHeader(tableDefinition: any, column: any):HTMLDivElement {
+    private htmlGetColumnHeader(column: any):HTMLDivElement {
         //tableHtml += "<div class='div-table-col-number table-cell-content' style='max-width:"+tableDefinition.columns[c].width+"px;width:"+tableDefinition.columns[c].width+"px;min-width:" + tableDefinition.columns[c].width + "px;" + headerStyle + "'><div class=' table-cell-content-inner'>"+ headerTitle +"</div></div>";
-        var headerStyle = this.getStyle(column.headerStyle, tableDefinition);
-        var headerTitle = this.getTitle(column, tableDefinition);
+        var headerStyle = this.getStyle(column.headerStyle);
+        var headerTitle = this.getTitle(column);
         var dDiv1 = document.createElement("div");
         dDiv1.className = "div-table-col-number table-cell-content";
         dDiv1.setAttribute("style", "max-width:" + column.width + "px;width:" + column.width + "px;min-width:" + column.width + "px;" + headerStyle);
@@ -270,12 +285,14 @@ export class Renderer {
         }
     }
 
-    public RenderAllContent(targetElement: HTMLElement, tableDefinition: any) {
+    public RenderAllContent(targetElement: HTMLElement, tableDefinitionFromCaller: any) {
+        this.tableDefinition = tableDefinitionFromCaller;
+
         this.clearHtmlElement(targetElement);
 
         var model = this.visual.getModel();
 
-        if ( tableDefinition === null ) {
+        if ( this.tableDefinition === null ) {
             this.RenderNoContentText(targetElement);
             return;
         }
@@ -297,10 +314,10 @@ export class Renderer {
 
         // Table border
         var customTableStyle = "";
-        if ( typeof tableDefinition.masterHeader !== 'undefined' ) {
-            customTableStyle = ";" + tableDefinition.masterHeader.borderStyle + ";";
+        if ( typeof this.tableDefinition.masterHeader !== 'undefined' ) {
+            customTableStyle = ";" + this.tableDefinition.masterHeader.borderStyle + ";";
         }
-        var w = this.getTableTotalWidth(tableDefinition);
+        var w = this.getTableTotalWidth();
         //var tableHtml = "<div class='tablewrapper'><div class='div-table' style='"+customTableStyle+"''>";
         var dTableWrapper = document.createElement("div");
         dTableWrapper.className = "tablewrapper";
@@ -311,12 +328,12 @@ export class Renderer {
 
 
         // Table header row
-        var rowStyle = this.getStyle(tableDefinition.headerRow.rowStyle, tableDefinition);
+        var rowStyle = this.getStyle(this.tableDefinition.headerRow.rowStyle);
 
         // Table header
-        if ( typeof tableDefinition.masterHeader !== 'undefined' ) {
+        if ( typeof this.tableDefinition.masterHeader !== 'undefined' ) {
             //tableHtml += "<div class='div-table-row-masterheader'  style='"+tableDefinition.masterHeader.headerStyle+"'><div>"+tableDefinition.masterHeader.title+"</div></div>";
-            dTable.appendChild( this.htmlGetMasterHeader(tableDefinition) );
+            dTable.appendChild( this.htmlGetMasterHeader() );
         }
 
         //tableHtml += "<div class='div-table-row-header' style='" + rowStyle + "'>";
@@ -325,23 +342,23 @@ export class Renderer {
         dTableRowHeader.setAttribute("style", rowStyle);
         dTable.appendChild(dTableRowHeader);
 
-        for(var c=0; c<tableDefinition.columns.length; c++) {
+        for(var c=0; c<this.tableDefinition.columns.length; c++) {
             //var headerStyle = this.getStyle(tableDefinition.columns[c].headerStyle, tableDefinition);
             //var headerTitle = this.getTitle(tableDefinition.columns[c], tableDefinition);
             //tableHtml += "<div class='div-table-col-number table-cell-content' style='max-width:"+tableDefinition.columns[c].width+"px;width:"+tableDefinition.columns[c].width+"px;min-width:" + tableDefinition.columns[c].width + "px;" + headerStyle + "'><div class=' table-cell-content-inner'>"+ headerTitle +"</div></div>";
-            dTable.appendChild( this.htmlGetColumnHeader(tableDefinition, tableDefinition.columns[c]) );
+            dTable.appendChild( this.htmlGetColumnHeader(this.tableDefinition.columns[c]) );
         } 
         //tableHtml += "</div>";
 
         
         var DisplayAllRows = false; // Default value = display all rows
-        if ( typeof(tableDefinition.displayAllRows)!=="undefined" ) {
-            DisplayAllRows = tableDefinition.displayAllRows;
+        if ( typeof(this.tableDefinition.displayAllRows)!=="undefined" ) {
+            DisplayAllRows = this.tableDefinition.displayAllRows;
         }
         
         // Fix ranges (replace : with multiple +)
-        for(var r=0; r<tableDefinition.rows.length; r++) {
-            var row = tableDefinition.rows[r];
+        for(var r=0; r<this.tableDefinition.rows.length; r++) {
+            var row = this.tableDefinition.rows[r];
             var newFormula = "";
             if ( row.formula.indexOf("::") > -1 ) { // indexOf instead of includes to support older browsers
                 var p = row.formula.indexOf("::");
@@ -357,22 +374,22 @@ export class Renderer {
         }
 
         // Table rows
-        for(var r=0; r<tableDefinition.rows.length; r++) {
-            var row = tableDefinition.rows[r];
+        for(var r=0; r<this.tableDefinition.rows.length; r++) {
+            var row = this.tableDefinition.rows[r];
             var rowHtml = "";
-            var rowStyle = this.getStyle(row.rowStyle, tableDefinition);
+            var rowStyle = this.getStyle(row.rowStyle);
             //rowHtml += "<div class='div-table-row' style='"+rowStyle+"'>";
             var dRow = document.createElement("div");
             dRow.className = "div-table-row";
             dRow.setAttribute("style", rowStyle);
             var allColumnsAreBlank:boolean = true;
             var rowCols = [];
-            for(var c=0; c<tableDefinition.columns.length; c++) {
-                var col = tableDefinition.columns[c];
-                var colRowStyle = this.getStyle(col.rowStyle, tableDefinition);
+            for(var c=0; c<this.tableDefinition.columns.length; c++) {
+                var col = this.tableDefinition.columns[c];
+                var colRowStyle = this.getStyle(col.rowStyle);
                 var renderValue = "";
                 var rowStyle = "max-width:" + col.width + "px;" +"min-width:" + col.width + "px;" + "width:" + col.width + "px;" +  colRowStyle;
-                var cellRowDataStyle = this.getStyle( row.cellRowDataStyle, tableDefinition );
+                var cellRowDataStyle = this.getStyle( row.cellRowDataStyle );
                 if ( col.type === "Data" ) {
                     // Datakolumners innehåll hämtar vi från modellen direkt.
                     var v = this.GetValueForColumnRowCalculationByName(row, col);
@@ -388,7 +405,7 @@ export class Renderer {
                 } 
                 else if ( col.type === "RowHeader") {
                     renderValue = row.title;
-                    var cellRowHeaderStyle = this.getStyle(row.cellRowHeaderStyle, tableDefinition);
+                    var cellRowHeaderStyle = this.getStyle(row.cellRowHeaderStyle);
                     cellRowDataStyle = cellRowHeaderStyle;
                     rowCols.push( { rawValue: null, formatString: null } );
                 } 

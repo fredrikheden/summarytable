@@ -29,7 +29,8 @@ The abone image shows a summary table with an income statement with yellow highl
 		"title": "Master header of table",
 		"headerStyle": "background-color:#000000;color:#fff;padding:5px",
 		"borderStyle": "border:1px solid #000000"
-	}	
+	},
+	"culture": "en-US"
 }
 ```
 * **additionalWidth** - additional width to add to the containing table. This property needs to be set is using borders on the columns. Add the total amount of horizontal border width to this cell.
@@ -37,6 +38,8 @@ The abone image shows a summary table with an income statement with yellow highl
 * **reusableCSS** - a way to define a css string that is reusable in all the style properties.
 
 * **masterHeader** - this property can be used to create a border and master header for the whole table. If no header/border are to be used, skip this property.
+
+* **culture** - this property is currently not working due to a bug in the Power BI Custom Visual API.
 
 ### Define columns - `columns`
 #### Example

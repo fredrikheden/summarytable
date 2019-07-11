@@ -20,5 +20,8 @@
   "devDependencies": {
     "ts-loader": "5.2.2",
     "typescript": "3.0.1"
+  },
+  "scripts": {
+    "lint": "tslint -c tslint.json -p tsconfig.json"
   }
 }
