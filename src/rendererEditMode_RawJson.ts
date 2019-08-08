@@ -8,18 +8,34 @@ import * as Utils from "./jsUtils";
 
 export class RendererEditMode_RawJson {
     private rendererEditModeBase: RendererEditMode;
+    private rawEditor: HTMLTextAreaElement
 
     constructor(editor: RendererEditMode) {
         this.rendererEditModeBase = editor;
     }
 
+    public GetValue(): string {
+        return this.rawEditor.value;
+    }
+
+    private getFormattedJson(json:string):string {
+        try {
+            var o = JSON.parse(json);
+            var str = JSON.stringify(o, null, "\t");
+            return str;
+        }
+        catch {
+            return json;
+        }
+    }
+
     public RenderEditMode_RawJson(target: HTMLElement,  settings: VisualSettings) {
-        var txtEditor: HTMLTextAreaElement = document.createElement("textarea");
+        var txtEditor: HTMLTextAreaElement = this.rawEditor = document.createElement("textarea");
         var divRenderInEditMode = document.createElement("div");
         target.appendChild(txtEditor);
         target.appendChild(divRenderInEditMode);
         txtEditor.className = "TextCodeBox";
-        txtEditor.value = settings.dataPoint.tableConfiguration;
+        txtEditor.value = this.getFormattedJson(settings.dataPoint.tableConfiguration);
 
         if ( !Utils.containsValue(txtEditor.value)  ) {
             txtEditor.value = this.rendererEditModeBase.GetTemplateFromFieldList();

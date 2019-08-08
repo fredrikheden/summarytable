@@ -15,10 +15,60 @@ export class RendererEditMode {
     public btnSave : HTMLInputElement;
     public btnLoadFromFieldList : HTMLInputElement;
     private designMode: boolean = true;
+    private EditModeRenderer = null; // Reference to the current renderer (edit mode or raw)
+    private switchInputRef:HTMLInputElement = null;
 
     constructor(visual: Visual, renderer: Renderer) {
         this.visual = visual;
         this.renderer = renderer;
+    }
+
+    private CreateSwitchElement() : HTMLElement {
+       var Switch1 = document.createElement("div");
+       Switch1.style.display = "inline-block";
+       Switch1.style.paddingLeft = "40px";
+       var label1 = document.createElement("label");
+       var input1 = document.createElement("input");
+       var span1 = document.createElement("span");
+       var span2 = document.createElement("span");
+       var txt1 = document.createTextNode("Code view");
+       label1.appendChild(input1);
+       label1.appendChild(span1);
+       Switch1.appendChild(label1);
+       Switch1.appendChild(span2);
+       span2.appendChild(txt1);
+       label1.className = "switch";
+       input1.type = "checkbox";
+       input1.checked = !this.designMode;
+       span1.className = "slider round";
+       span2.style.paddingLeft = "7px";
+       var thisRef = this;
+       input1.onchange = function(e) {
+            var et = e.target as HTMLInputElement;
+            thisRef.ChangeEditMode(et.checked);
+       };
+       this.switchInputRef = input1;
+       return Switch1;
+    }
+
+    private ChangeEditMode( rawJsonMode: boolean ) {
+        if ( !this.designMode ) {
+            // We are in code view, switching to design view. We need to store the json before rendering.
+            var s = this.EditModeRenderer.GetValue();
+            try {
+                var tableDefTmp = JSON.parse(s);
+                this.visual.settings.dataPoint.tableConfiguration = s;
+            } 
+            catch {
+                // Json is not wellformed, do not switch to design mode.
+                this.switchInputRef.checked = true;
+                return;
+            }           
+            
+        }
+        this.designMode = !rawJsonMode;
+        this.visual.ClearAllContent();
+        this.RenderEditMode(this.visual.target, this.visual.settings)
     }
 
     public RenderEditMode(target: HTMLElement,  settings: VisualSettings) {
@@ -33,6 +83,8 @@ export class RendererEditMode {
         btnLoadFromFieldList.className = "inputButton";
         target.appendChild(btnSave);
         target.appendChild(btnLoadFromFieldList);
+        target.appendChild(this.CreateSwitchElement());
+
         var divContainer : HTMLDivElement = document.createElement("div");
         divContainer.style.height = "93%"; // With 100% we get scrollbars in edit mode.
         target.appendChild(divContainer);
@@ -42,11 +94,13 @@ export class RendererEditMode {
             // Render design mode editor here
             var EditModeDesigner = new RendererEditMode_Designer(this);
             EditModeDesigner.RenderEditMode_Designer(this.editorContainer, settings);
+            this.EditModeRenderer = EditModeDesigner;
         }
         else {
             // Render raw json editor here
             var EditModeRawJson = new RendererEditMode_RawJson(this);
             EditModeRawJson.RenderEditMode_RawJson(this.editorContainer, settings);
+            this.EditModeRenderer = EditModeRawJson;
         }
     }
 

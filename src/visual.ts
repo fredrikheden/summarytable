@@ -82,8 +82,8 @@ import { RendererEditMode } from "./rendererEditMode";
 }      
 
 export class Visual implements IVisual {
-    private target: HTMLElement;
-    private settings: VisualSettings;
+    public target: HTMLElement;
+    public settings: VisualSettings;
     private tableDefinition: any;
     private model: any;
     public host: any;
@@ -146,7 +146,7 @@ export class Visual implements IVisual {
         this.target.appendChild(a);
     }
  
-    private ClearAllContent() {
+    public ClearAllContent() {
         while(this.target.firstChild){
             this.target.removeChild(this.target.firstChild);
         }

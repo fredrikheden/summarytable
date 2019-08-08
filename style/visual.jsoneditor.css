@@ -1,6 +1,10 @@
 
 /* JSON Editor Styles */
 
+.newEditor h3 {
+  display:none;
+}
+
 .newEditor {
     width:99%;
     padding-bottom:15px;

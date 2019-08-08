@@ -3,7 +3,7 @@ export var configSchema = {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "http://example.com/root.json",
   "type": "object",
-  "title": "Configuration",
+  "title": "Design view",
   "format": "categories",
   "basicCategoryTitle": "Main",
   "options": {
