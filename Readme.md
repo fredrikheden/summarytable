@@ -17,7 +17,7 @@ The abone image shows a summary table with an income statement with yellow highl
 	"columns": [...],
 	"rows": [...],
 	"headerRow": {...},
-	"displayheaderRowAllRows": true/false,
+	"displayAllRows": true/false,
 	"additionalWidth": 5, // Obsolete from version 2.0.0
 	"reusableCSS" : [
 		{
@@ -33,6 +33,8 @@ The abone image shows a summary table with an income statement with yellow highl
 	"culture": "en-US"
 }
 ```
+* **displayAllRows** - if this property is set to true all visible header rows will be shown, even if they contain no data.
+
 * **additionalWidth** - additional width to add to the containing table. This property needs to be set is using borders on the columns. Add the total amount of horizontal border width to this cell.
 
 * **reusableCSS** - a way to define a css string that is reusable in all the style properties.

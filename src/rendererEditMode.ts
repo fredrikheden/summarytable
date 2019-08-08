@@ -14,7 +14,7 @@ export class RendererEditMode {
     public editorContainer: HTMLDivElement = null;
     public btnSave : HTMLInputElement;
     public btnLoadFromFieldList : HTMLInputElement;
-    private designMode: boolean = false;
+    private designMode: boolean = true;
 
     constructor(visual: Visual, renderer: Renderer) {
         this.visual = visual;
@@ -34,7 +34,7 @@ export class RendererEditMode {
         target.appendChild(btnSave);
         target.appendChild(btnLoadFromFieldList);
         var divContainer : HTMLDivElement = document.createElement("div");
-        divContainer.style.height = "94%"; // With 100% we get scrollbars in edit mode.
+        divContainer.style.height = "93%"; // With 100% we get scrollbars in edit mode.
         target.appendChild(divContainer);
         this.editorContainer = divContainer;  
 

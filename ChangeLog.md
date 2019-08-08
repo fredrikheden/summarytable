@@ -1,16 +1,19 @@
 # Change Log
 
-## Version v3.0.2 (not released yet)
+## Version v3.1.0 (not published yet)
+* Added support for json editor (thanks to Rishav Sharma).
+
+## Version v3.0.2
 * Added support for culture (but is seems to still be a Power BI issue with this: https://github.com/microsoft/powerbi-visuals-utils-formattingutils/issues/36).
 * Added tslint.json (certification requirement).
 
-## Version v3.0.1 (submitted, not released yet)
-* Code improved to support certification (support of rendering events and no user of innerHtml)
+## Version v3.0.1
+* Code improved to support certification (support of rendering events and no use of innerHtml)
 
-## Version v3.0.0 (not released yet)
+## Version v3.0.0
 * Code restructured and prepared for new types of editors.
 
-## Version v2.0.0 (not released yet)
+## Version v2.0.0
 * Support for the new 2.6 api.
 * Better handling of wrapped columns. Note that there are minor changes to the width of the column due to this fix, which can make older summary tables appear wider. To correct this, decrease the width of the column.
 * Possible to use a json string from the data model (name it "json" and it will be used)

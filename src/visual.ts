@@ -1,3 +1,4 @@
+// TODO: Switch between raw json and editor.
 // TODO: Cross filtering by clicking on a row.
 // TODO: Possibility to use themes.
 // TODO: What does n/a mean? Is it different from a blank value?
@@ -86,7 +87,7 @@ export class Visual implements IVisual {
     private tableDefinition: any;
     private model: any;
     public host: any;
-    private internalVersionNo: string = "3.0.2";
+    private internalVersionNo: string = "3.1.0";
     public tableDefinitionFromDataset: any;
     private renderer: Renderer;
     private rendererEditMode: RendererEditMode;
