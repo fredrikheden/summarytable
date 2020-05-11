@@ -1,6 +1,9 @@
 # Change Log
 
 ## Version v3.1.0 (not published yet)
+* Added support for direct columns reference from rows (directColumnRef property).
+* Added support for hidden columns (hidden property).
+* Added support for hidden columns in specific rows (hideForColumns property).
 * Added support for json editor (thanks to Rishav Sharma).
 
 ## Version v3.0.2
