@@ -318,7 +318,6 @@ export class Renderer {
             customTableStyle = ";" + this.tableDefinition.masterHeader.borderStyle + ";";
         }
         var w = this.getTableTotalWidth();
-        //var tableHtml = "<div class='tablewrapper'><div class='div-table' style='"+customTableStyle+"''>";
         var dTableWrapper = document.createElement("div");
         dTableWrapper.className = "tablewrapper";
         var dTable = document.createElement("div");
@@ -332,24 +331,20 @@ export class Renderer {
 
         // Table header
         if ( typeof this.tableDefinition.masterHeader !== 'undefined' ) {
-            //tableHtml += "<div class='div-table-row-masterheader'  style='"+tableDefinition.masterHeader.headerStyle+"'><div>"+tableDefinition.masterHeader.title+"</div></div>";
             dTable.appendChild( this.htmlGetMasterHeader() );
         }
 
-        //tableHtml += "<div class='div-table-row-header' style='" + rowStyle + "'>";
         var dTableRowHeader = document.createElement("div");
         dTableRowHeader.className = "div-table-row-header";
         dTableRowHeader.setAttribute("style", rowStyle);
         dTable.appendChild(dTableRowHeader);
 
+        // Column headers
         for(var c=0; c<this.tableDefinition.columns.length; c++) {
-            //var headerStyle = this.getStyle(tableDefinition.columns[c].headerStyle, tableDefinition);
-            //var headerTitle = this.getTitle(tableDefinition.columns[c], tableDefinition);
-            //tableHtml += "<div class='div-table-col-number table-cell-content' style='max-width:"+tableDefinition.columns[c].width+"px;width:"+tableDefinition.columns[c].width+"px;min-width:" + tableDefinition.columns[c].width + "px;" + headerStyle + "'><div class=' table-cell-content-inner'>"+ headerTitle +"</div></div>";
-            dTable.appendChild( this.htmlGetColumnHeader(this.tableDefinition.columns[c]) );
+            if ( !this.tableDefinition.columns[c].hidden ) {
+                dTable.appendChild( this.htmlGetColumnHeader(this.tableDefinition.columns[c]) );
+            }
         } 
-        //tableHtml += "</div>";
-
         
         var DisplayAllRows = false; // Default value = display all rows
         if ( typeof(this.tableDefinition.displayAllRows)!=="undefined" ) {
@@ -378,7 +373,6 @@ export class Renderer {
             var row = this.tableDefinition.rows[r];
             var rowHtml = "";
             var rowStyle = this.getStyle(row.rowStyle);
-            //rowHtml += "<div class='div-table-row' style='"+rowStyle+"'>";
             var dRow = document.createElement("div");
             dRow.className = "div-table-row";
             dRow.setAttribute("style", rowStyle);
@@ -395,7 +389,6 @@ export class Renderer {
                     var v = this.GetValueForColumnRowCalculationByName(row, col);
                     allColumnsAreBlank = v.rawValue !== null ? false : allColumnsAreBlank;
                     if ( isNaN(Number(v.rawValue)) || v.rawValue === null) {
-                        //renderValue = "&nbsp;"; 
                         renderValue = "\u00A0";
                     } else {
                         renderValue = v.formattedValue;
@@ -416,7 +409,6 @@ export class Renderer {
                     if ( renderValue.toLowerCase() !== "(blank)" && renderValue.toLowerCase() !== "nan" ) {
                         allColumnsAreBlank = false;
                     } else {
-                        //renderValue = "&nbsp;";
                         renderValue = "\u00A0";
                     }
                     calcValue.formatString = col.format;
@@ -426,6 +418,25 @@ export class Renderer {
                     renderValue = "";
                     rowCols.push( { rawValue: null, formatString: null } );
                 }
+
+                // Check if we have a direct column reference
+                var shouldReplaceValue = false;
+                var replaceWithColumn = "";
+                if ( typeof row.directColumnRef !== 'undefined' ) {
+                    for(var i=0;i < row.directColumnRef.length; i++ ) {
+                        if ( row.directColumnRef[i].columnRefName === col.refName ) {
+                            shouldReplaceValue = true;
+                            replaceWithColumn = row.directColumnRef[i].columnReplaceRefName;
+                            break;
+                        }
+                    }
+                }
+                if ( shouldReplaceValue) {
+                    var replaceCol = this.tableDefinition.columns.filter( a=> a.refName === replaceWithColumn )[0];
+                    var v = this.GetValueForColumnRowCalculationByName(row, replaceCol);
+                    renderValue = v.formattedValue;
+                }
+
                 // Check if we should ignore presentation of this field for this column.
                 var shouldHideValue = false;
                 if ( typeof row.hideForColumns !== 'undefined' ) {
@@ -437,21 +448,19 @@ export class Renderer {
                     }
                 }
                 if ( shouldHideValue) {
-                    //renderValue = "&nbsp;";
                     renderValue = "\u00A0";
                 }
 
                 if ( row.formula.length === 0 ) {
                     renderValue = "";
                 }
-                //var colHtml = "<div class='div-table-col-number table-cell-content' style='" + rowStyle + ";"+cellRowDataStyle+"'><div class=' table-cell-content-inner'>"+renderValue+"</div></div>";
-                //rowHtml += colHtml;
-                dRow.appendChild( this.htmlGetColumnContent(rowStyle, cellRowDataStyle, renderValue) );
+                if ( !col.hidden ) {
+                    dRow.appendChild( this.htmlGetColumnContent(rowStyle, cellRowDataStyle, renderValue) );
+                }
             } 
-            //rowHtml += "</div>";
             if ( !allColumnsAreBlank || row.formula.length === 0 || DisplayAllRows ) {
+                // Do nothing
             } else {
-                //rowHtml = "";
             }
             // Add calculated row to model (to be able to reuse it in later calculations)
             var isCalculatedRow = true;
@@ -476,7 +485,6 @@ export class Renderer {
                 model.push(newModelRow);
             }
             if ( row.visible ) {
-                //tableHtml += rowHtml;
                 if ( !allColumnsAreBlank || row.formula.length === 0 || DisplayAllRows ) {
                     dTable.appendChild(dRow);
                 } else {

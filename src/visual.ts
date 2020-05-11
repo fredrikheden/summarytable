@@ -1,3 +1,4 @@
+// TODO: Be able to reference a specific measure in a row/column. New attribute on row: DirectColumnRef: [ {  "columnRef": "name of column", "measureRef": "name of measure" } ]
 // TODO: Switch between raw json and editor.
 // TODO: Cross filtering by clicking on a row.
 // TODO: Possibility to use themes.

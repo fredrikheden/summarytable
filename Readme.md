@@ -54,7 +54,8 @@ The abone image shows a summary table with an income statement with yellow highl
 	"refName": "[AccountGroup]", 
 	"title": "Amounts in k$",
 	"calculationFormula": "", 
-	"format": ""
+	"format": "",
+	"hidden": false
 }
 ```
 
@@ -67,6 +68,7 @@ The abone image shows a summary table with an income statement with yellow highl
 * **title** - the displayed title of the column. References to measures can be done by using eval(). To reference a measure called year can be made by writing "eval([Year])".
 * **calculationFormula** - the formula that should be applied when using the Calculation type. E.g. "[Savings SEK]/[Spend SEK]". Measures are referenced betweeen brackets ([]). Any formula and operator that can be evaluated using javaScript kan be used.
 * **format** - the formatting that should be applied when rendered. E.g. "#,0" and "0.0 %;-0.0 %;0.0 %".
+* **hidden** - if this property is set to true, the column will not be displayed (can be useful when rows are referencing columns directly).
 
 ### Define rows - `rows`
 #### Example
@@ -78,7 +80,15 @@ The abone image shows a summary table with an income statement with yellow highl
 	"visible": true,
 	"cellRowHeaderStyle": "",
 	"cellRowDataStyle": "",
-	"format": ""
+	"format": "",
+	"hideForColumns": ["[Amount]"],
+	"directColumnRef": [
+		{
+				"columnRefName": "[Budget]",
+				"columnReplaceRefName": "[Custom measure %]"
+			}
+	]	
+
 }
 ```
 
@@ -90,6 +100,8 @@ The abone image shows a summary table with an income statement with yellow highl
 * **cellRowHeaderStyle** - the css style of the row header (the first column).
 * **cellRowDataStyle** - the css style of the row data columns header (all columns except the first one).
 * **format** - optional formatting that should be applied to the whole row when rendered. E.g. "#,0" and "0.0 %;-0.0 %;0.0 %". 
+* **hideForColumns** - if the refName of the columns is listed here the column will display a blank value.
+* **directColumnRef** - optional property that, when used, will replace a specific column value with another column value.
 
 ### Define header row style - `headerRow`
 #### Example

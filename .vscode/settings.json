@@ -33,5 +33,6 @@
             ],            
             "url": "./.api/v1.6.0/schema.dependencies.json"
         }        
-    ]    
+    ],
+    "git.ignoreLimitWarning": true
 }

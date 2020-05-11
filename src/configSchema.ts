@@ -152,6 +152,15 @@ export var configSchema = {
               150
             ]
           },
+          "hidden": {
+            "$id": "#/properties/columns/items/properties/hidden",
+            "type": "boolean",
+            "title": "Hidden",
+            "default": false,
+            "examples": [
+              false
+            ]
+          },
           "type": {
             "$id": "#/properties/columns/items/properties/type",
             "type": "string",
@@ -295,7 +304,40 @@ export var configSchema = {
               ""
             ],
             "pattern": "^(.*)$"
-          }
+          },
+          "hideForColumns": {
+            "$id": "#/properties/rows/items/properties/hideForColumns",
+            "type": "array",
+            "title": "Hide for columns",
+            "items": {
+              "type": "string"
+            }
+          },
+          "directColumnRef": {
+            "$id": "#/properties/rows/items/properties/directColumnRef",
+            "type": "array",
+            "title": "Direcy column reference",
+            "format": "table",
+            "items": {
+              "$id": "#/properties/rows/items/properties/directColumnRef/items",
+              "type": "object",
+              "title": "Items",
+              "properties": {
+                "columnRefName": {
+                  "$id": "#/properties/rows/items/properties/directColumnRef/items/properties/columnRefName",
+                  "type": "string",
+                  "title": "Column ref name",
+                  "default": ""
+                },
+                "columnReplaceRefName": {
+                  "$id": "#/properties/rows/items/properties/directColumnRef/items/properties/columnReplaceRefName",
+                  "type": "string",
+                  "title": "Column replace with ref name",
+                  "default": ""
+                }
+              }
+            }
+          },
         }
       }
     },
