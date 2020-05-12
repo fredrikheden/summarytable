@@ -276,6 +276,52 @@ export class Renderer {
         }
     }
 
+    private getCellContents(col:any, row:any, allColumnsAreBlank: boolean, cellRowDataStyle: any): any {
+        var renderValue = "";
+        var cellContents = null;
+        if ( col.type === "Data" ) {
+            // Datakolumners innehåll hämtar vi från modellen direkt.
+            var v = this.GetValueForColumnRowCalculationByName(row, col);
+            allColumnsAreBlank = v.rawValue !== null ? false : allColumnsAreBlank;
+            if ( isNaN(Number(v.rawValue)) || v.rawValue === null) {
+                renderValue = "\u00A0";
+            } else {
+                renderValue = v.formattedValue;
+            }
+            v.formatString = col.format;
+            cellContents = v;
+            //rowCols.push( v );
+        } 
+        else if ( col.type === "RowHeader") {
+            renderValue = row.title;
+            var cellRowHeaderStyle = this.getStyle(row.cellRowHeaderStyle);
+            cellRowDataStyle = cellRowHeaderStyle;
+            //rowCols.push( { rawValue: null, formatString: null } );
+            cellContents = { rawValue: null, formatString: null };
+        } 
+        else if ( col.type === "Calculation") {
+            // Kolumner som baseras på en formeln räknas ut
+            var calcValue = this.GetValueForColumCalculation(row, col);
+            renderValue = calcValue.formattedValue;
+            if ( renderValue.toLowerCase() !== "(blank)" && renderValue.toLowerCase() !== "nan" ) {
+                allColumnsAreBlank = false;
+            } else {
+                renderValue = "\u00A0";
+            }
+            calcValue.formatString = col.format;
+            //rowCols.push( calcValue );
+            cellContents = calcValue;
+        } 
+        else {
+            renderValue = "";
+            //rowCols.push( { rawValue: null, formatString: null } );
+            cellContents = { rawValue: null, formatString: null };
+        }
+        cellContents.renderValue = renderValue;
+        cellContents.cellRowDataStyle = cellRowDataStyle;
+        return cellContents;
+    }
+
     public RenderAllContent(targetElement: HTMLElement, tableDefinitionFromCaller: any) {
         this.tableDefinition = tableDefinitionFromCaller;
 
@@ -372,43 +418,11 @@ export class Renderer {
             for(var c=0; c<this.tableDefinition.columns.length; c++) {
                 var col = this.tableDefinition.columns[c];
                 var colRowStyle = this.getStyle(col.rowStyle);
-                var renderValue = "";
                 var rowStyle = "max-width:" + col.width + "px;" +"min-width:" + col.width + "px;" + "width:" + col.width + "px;" +  colRowStyle;
                 var cellRowDataStyle = this.getStyle( row.cellRowDataStyle );
-                if ( col.type === "Data" ) {
-                    // Datakolumners innehåll hämtar vi från modellen direkt.
-                    var v = this.GetValueForColumnRowCalculationByName(row, col);
-                    allColumnsAreBlank = v.rawValue !== null ? false : allColumnsAreBlank;
-                    if ( isNaN(Number(v.rawValue)) || v.rawValue === null) {
-                        renderValue = "\u00A0";
-                    } else {
-                        renderValue = v.formattedValue;
-                    }
-                    v.formatString = col.format;
-                    rowCols.push( v );
-                } 
-                else if ( col.type === "RowHeader") {
-                    renderValue = row.title;
-                    var cellRowHeaderStyle = this.getStyle(row.cellRowHeaderStyle);
-                    cellRowDataStyle = cellRowHeaderStyle;
-                    rowCols.push( { rawValue: null, formatString: null } );
-                } 
-                else if ( col.type === "Calculation") {
-                    // Kolumner som baseras på en formeln räknas ut
-                    var calcValue = this.GetValueForColumCalculation(row, col);
-                    renderValue = calcValue.formattedValue;
-                    if ( renderValue.toLowerCase() !== "(blank)" && renderValue.toLowerCase() !== "nan" ) {
-                        allColumnsAreBlank = false;
-                    } else {
-                        renderValue = "\u00A0";
-                    }
-                    calcValue.formatString = col.format;
-                    rowCols.push( calcValue );
-                } 
-                else {
-                    renderValue = "";
-                    rowCols.push( { rawValue: null, formatString: null } );
-                }
+                var cellContents = this.getCellContents(col, row, allColumnsAreBlank, cellRowDataStyle);
+                cellRowDataStyle = cellContents.cellRowDataStyle;
+                allColumnsAreBlank = cellContents.allColumnsAreBlank;
 
                 // Check if we have a direct column reference
                 var shouldReplaceValue = false;
@@ -424,9 +438,14 @@ export class Renderer {
                 }
                 if ( shouldReplaceValue) {
                     var replaceCol = this.tableDefinition.columns.filter( a=> a.refName === replaceWithColumn )[0];
-                    var v = this.GetValueForColumnRowCalculationByName(row, replaceCol);
-                    renderValue = v.formattedValue;
+                    cellContents = this.getCellContents(replaceCol, row, allColumnsAreBlank, cellRowDataStyle);
+                    //var v = this.GetValueForColumnRowCalculationByName(row, replaceCol);
+                    //renderValue = v.formattedValue;
+                    //cellContents = v;
                 }
+
+                rowCols.push( cellContents );
+                var renderValue = cellContents.renderValue;
 
                 // Check if we should ignore presentation of this field for this column.
                 var shouldHideValue = false;
