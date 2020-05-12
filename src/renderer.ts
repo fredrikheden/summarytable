@@ -9,7 +9,9 @@ import textMeasurementService = tms.textMeasurementService;
 import valueFormatter = vf.valueFormatter;
 
 import * as Utils from "./jsUtils";
+import * as Calculator from "./calculator";
 import { Visual } from './visual';
+
 
 export class Renderer {
     private visual: Visual;
@@ -44,7 +46,7 @@ export class Renderer {
                 }
             }
         }
-        var rawValue = this.EvalFormula( fExpression );
+        var rawValue = Calculator.EvalFormula( fExpression );
         var format = model[0].values[colIndex].formatString;
         if ( Utils.containsValue(colDef.format) ) { // Only use column formatting if it is defined
             format = colDef.format;
@@ -55,17 +57,6 @@ export class Renderer {
         var formattedValue = this.FormatValue(rawValue, format);
         return { formattedValue: formattedValue, rawValue: rawValue };
     }
-
-    private EvalFormula(expr) {
-        var e = null;
-        try {
-            e = eval(expr);
-        } catch(exc) {
-            e = null;
-        }
-        return e;
-    }
-
 
     private FormatValue(rawValue, format) {
         // TODO: improve performance by creating the customFormatter globally.
@@ -143,7 +134,7 @@ export class Renderer {
         if ( Utils.containsValue(row.format) ) {
             format = row.format;
         }
-        var evalValue = this.EvalFormula(resultExpression);        
+        var evalValue = Calculator.EvalFormula(resultExpression);        
         var resultFormatted = this.FormatValue(evalValue, format);
         return { formattedValue: resultFormatted, rawValue: evalValue };
     }
