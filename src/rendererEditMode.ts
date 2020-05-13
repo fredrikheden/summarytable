@@ -7,7 +7,6 @@ import * as Utils from "./jsUtils";
 import { RendererEditMode_Designer } from "./rendererEditMode_Designer";
 import { RendererEditMode_RawJson } from "./rendererEditMode_RawJson";
 
-
 export class RendererEditMode {
     public visual: Visual;
     public renderer: Renderer;
@@ -43,7 +42,7 @@ export class RendererEditMode {
        span1.className = "slider round";
        span2.style.paddingLeft = "7px";
        var thisRef = this;
-       input1.onchange = function(e) {
+       input1.onchange = (e) => {
             var et = e.target as HTMLInputElement;
             thisRef.ChangeEditMode(et.checked);
        };

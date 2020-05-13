@@ -1,11 +1,17 @@
 {
-    "extends": "tslint-microsoft-contrib/recommended",
+    "extends": "tslint:recommended",
     "rulesDirectory": [
         "node_modules/tslint-microsoft-contrib"
     ],
     "rules": {
     "no-internal-module": false,
     "no-namespace": false,
-    "trailing-comma": [true, {"multiline": "ignore", "singleline": "never"}]
+    "trailing-comma": [true, {"multiline": "ignore", "singleline": "never"}],
+    "max-line-length": [true, 220],
+    "prefer-const": false,
+    "no-var-keyword": false,
+    "no-eval": false,
+    "whitespace": [false],
+    "no-trailing-whitespace": false
    }
 }

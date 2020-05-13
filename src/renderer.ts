@@ -36,16 +36,17 @@ export class Renderer {
 
         // Till denna funktion kommer vi en gång per beräknad rad.
         var fExpression = row.formula;
-        for(var i=0; i<model.length; i++) {
+        for( let m of model ) {
             // Gå igenom varje rad i modellen för att hitta referenser
-            if ( row.formula !== null && model[i].name !== null) {
-                var iPos = row.formula.toLowerCase().indexOf( model[i].name.toLowerCase() );
+            if ( row.formula !== null && m.name !== null) {
+                var iPos = row.formula.toLowerCase().indexOf( m.name.toLowerCase() );
                 if (  iPos !== -1 ) {
-                    var modelRawValue = model[i].values[colIndex].rawValue;
-                    fExpression = Utils.replace2( fExpression, model[i].name, modelRawValue );
+                    var modelRawValue = m.values[colIndex].rawValue;
+                    fExpression = Utils.replace2( fExpression, m.name, modelRawValue );
                 }
             }
         }
+
         var rawValue = Calculator.EvalFormula( fExpression );
         var format = model[0].values[colIndex].formatString;
         if ( Utils.containsValue(colDef.format) ) { // Only use column formatting if it is defined
@@ -55,7 +56,7 @@ export class Renderer {
             format = row.format;
         }
         var formattedValue = this.FormatValue(rawValue, format);
-        return { formattedValue: formattedValue, rawValue: rawValue };
+        return { formattedValue, rawValue };
     }
 
     private FormatValue(rawValue, format) {
@@ -65,12 +66,12 @@ export class Renderer {
         if ( Utils.containsValue( this.tableDefinition.culture ) ) {
             customFormatter = valueFormatter.create({
                 cultureSelector: "zh-TW", // this.tableDefinition.culture,
-                format: format
+                format
             });
         } else {
             customFormatter = valueFormatter.create({
                 cultureSelector: this.visual.host.locale,
-                format: format
+                format
             });
         }
         var formattedValue = customFormatter.format(rawValue);
@@ -142,8 +143,8 @@ export class Renderer {
     private getTableTotalWidth():number {
         var w = 0;
         var additionalWidth = this.tableDefinition.additionalWidth;
-        for(var c=0; c<this.tableDefinition.columns.length; c++) {
-            w += this.tableDefinition.columns[c].width;
+        for( let col of this.tableDefinition.columns) {
+            w += col.width;
         }
         if ( !isNaN(additionalWidth) ) {
             w += additionalWidth;
@@ -163,8 +164,8 @@ export class Renderer {
             return style;
         }
         var style2 = style;
-        for( var i=0; i<this.tableDefinition.reusableCSS.length; i++) {
-            style2 = Utils.replace2( style2, this.tableDefinition.reusableCSS[i].key, this.tableDefinition.reusableCSS[i].value );
+        for( let cssItem of this.tableDefinition.reusableCSS) {
+            style2 = Utils.replace2( style2, cssItem.key, cssItem.value );
         }
         return style2;
     }
@@ -234,7 +235,7 @@ export class Renderer {
     }
 
     private htmlGetMasterHeader():HTMLDivElement {
-        //tableHtml += "<div class='div-table-row-masterheader'  style='"+tableDefinition.masterHeader.headerStyle+"'><div>"+tableDefinition.masterHeader.title+"</div></div>";
+        // tableHtml += "<div class='div-table-row-masterheader'  style='"+tableDefinition.masterHeader.headerStyle+"'><div>"+tableDefinition.masterHeader.title+"</div></div>";
         var dTableMasterHeader = document.createElement("div");
         dTableMasterHeader.className = "div-table-row-masterheader";
         dTableMasterHeader.setAttribute("style", this.tableDefinition.masterHeader.headerStyle);
@@ -245,7 +246,6 @@ export class Renderer {
     }
 
     private htmlGetColumnHeader(column: any):HTMLDivElement {
-        //tableHtml += "<div class='div-table-col-number table-cell-content' style='max-width:"+tableDefinition.columns[c].width+"px;width:"+tableDefinition.columns[c].width+"px;min-width:" + tableDefinition.columns[c].width + "px;" + headerStyle + "'><div class=' table-cell-content-inner'>"+ headerTitle +"</div></div>";
         var headerStyle = this.getStyle(column.headerStyle);
         var headerTitle = this.getTitle(column);
         var dDiv1 = document.createElement("div");
@@ -259,7 +259,7 @@ export class Renderer {
     }
 
     private htmlGetColumnContent(rowStyle: string, cellRowDataStyle: string, renderValue: string):HTMLDivElement {
-        //var colHtml = "<div class='div-table-col-number table-cell-content' style='" + rowStyle + ";"+cellRowDataStyle+"'><div class=' table-cell-content-inner'>"+renderValue+"</div></div>";
+        // var colHtml = "<div class='div-table-col-number table-cell-content' style='" + rowStyle + ";"+cellRowDataStyle+"'><div class=' table-cell-content-inner'>"+renderValue+"</div></div>";
         var dDiv1 = document.createElement("div");
         dDiv1.className = "div-table-col-number table-cell-content";
         dDiv1.setAttribute("style", rowStyle + ";" + cellRowDataStyle);
@@ -290,13 +290,13 @@ export class Renderer {
             }
             v.formatString = col.format;
             cellContents = v;
-            //rowCols.push( v );
+            // rowCols.push( v );
         } 
         else if ( col.type === "RowHeader") {
             renderValue = row.title;
             var cellRowHeaderStyle = this.getStyle(row.cellRowHeaderStyle);
             cellRowDataStyle = cellRowHeaderStyle;
-            //rowCols.push( { rawValue: null, formatString: null } );
+            // rowCols.push( { rawValue: null, formatString: null } );
             cellContents = { rawValue: null, formatString: null };
         } 
         else if ( col.type === "Calculation") {
@@ -309,12 +309,12 @@ export class Renderer {
                 renderValue = "\u00A0";
             }
             calcValue.formatString = col.format;
-            //rowCols.push( calcValue );
+            // rowCols.push( calcValue );
             cellContents = calcValue;
         } 
         else {
             renderValue = "";
-            //rowCols.push( { rawValue: null, formatString: null } );
+            // rowCols.push( { rawValue: null, formatString: null } );
             cellContents = { rawValue: null, formatString: null };
         }
         cellContents.renderValue = renderValue;
@@ -361,7 +361,6 @@ export class Renderer {
         dTable.className = "div-table";
         dTable.setAttribute("style", customTableStyle);
         dTableWrapper.appendChild(dTable);
-
 
         // Table header row
         var rowStyle = this.getStyle(this.tableDefinition.headerRow.rowStyle);
@@ -439,9 +438,6 @@ export class Renderer {
                 if ( shouldReplaceValue) {
                     var replaceCol = this.tableDefinition.columns.filter( a=> a.refName === replaceWithColumn )[0];
                     cellContents = this.getCellContents(replaceCol, row, allColumnsAreBlank, cellRowDataStyle);
-                    //var v = this.GetValueForColumnRowCalculationByName(row, replaceCol);
-                    //renderValue = v.formattedValue;
-                    //cellContents = v;
                 }
 
                 rowCols.push( cellContents );
@@ -468,10 +464,10 @@ export class Renderer {
                     dRow.appendChild( this.htmlGetColumnContent(rowStyle, cellRowDataStyle, renderValue) );
                 }
             } 
-            if ( !allColumnsAreBlank || row.formula.length === 0 || DisplayAllRows ) {
-                // Do nothing
-            } else {
-            }
+            // if ( !allColumnsAreBlank || row.formula.length === 0 || DisplayAllRows ) {
+            //    // Do nothing
+            // } else {
+            // }
             // Add calculated row to model (to be able to reuse it in later calculations)
             var isCalculatedRow = true;
             for(var i=0; i<model.length; i++) {
@@ -501,19 +497,8 @@ export class Renderer {
                     // Do nothing
                 }
             }
-        } 
-        
-        //tableHtml += "</div></div>";
-        //targetElement.innerHTML = tableHtml;
+        }        
+        // tableHtml += "</div></div>";
         targetElement.appendChild(dTableWrapper);
     }    
-
 }
-
-
-
-
-
-
-
-
