@@ -124,7 +124,7 @@ export class RendererEditMode {
             var col = model[0].values[c];
             var j1 = `
     {
-        "headerStyle": "border-bottom:1px;border-bottom-color:#eee;border-bottom-style:solid",
+        "headerStyle": "#columnHeaderStyle#",
         "rowStyle": "%ROWSTYLE%",
         "width": 150,
         "type": "%COLTYPE%",
@@ -136,11 +136,11 @@ export class RendererEditMode {
             if ( c === 0) {
                 j1 = j1.replace(/%TITLECOLNAME%/g, '');
                 j1 = j1.replace(/%COLTYPE%/g, 'RowHeader');
-                j1 = j1.replace(/%ROWSTYLE%/g, 'text-align:left');
+                j1 = j1.replace(/%ROWSTYLE%/g, '#columnRowHeaderStyle#');
             } else {
                 j1 = j1.replace(/%TITLECOLNAME%/g, col.displayName);
                 j1 = j1.replace(/%COLTYPE%/g, 'Data');                  
-                j1 = j1.replace(/%ROWSTYLE%/g, '');
+                j1 = j1.replace(/%ROWSTYLE%/g, '#columnRowStyle#');
             }
             j1 = j1.replace(/%REFNAME%/g, col.refName);
             colJson += j1;
@@ -154,10 +154,10 @@ export class RendererEditMode {
     {
         "title": "%ROWTITLE%",
         "formula": "%FORMULA%",
-        "rowStyle": "",
+        "rowStyle": "#rowRowStyle#",
         "visible": true,
-        "cellRowHeaderStyle": "",
-        "cellRowDataStyle": ""
+        "cellRowHeaderStyle": "#rowHeaderStyle#",
+        "cellRowDataStyle": "#rowDataStyle#"
     },`;
             j1 = j1.replace(/%ROWTITLE%/g, row.title); 
             j1 = j1.replace(/%FORMULA%/g, row.name); 
@@ -166,6 +166,32 @@ export class RendererEditMode {
         rowJson = rowJson.substr(0, rowJson.length-1);
         var fullJson = `
 {
+"reusableCSS": [
+    {
+        "key": "#columnHeaderStyle#",
+        "value": "border-bottom:1px;border-bottom-color:#eee;border-bottom-style:solid;background-color:#eee"
+    },	
+    {
+        "key": "#columnRowHeaderStyle#",
+        "value": "text-align:left;white-space:nowrap;overflow:hidden"
+    },
+    {
+        "key": "#columnRowStyle#",
+        "value": ""
+    },
+    {
+        "key": "#rowRowStyle#",
+        "value": ""
+    },
+    {
+        "key": "#rowHeaderStyle#",
+        "value": ""
+    },
+    {
+        "key": "#rowDataStyle#",
+        "value": ""
+    }
+],    
 "columns": [
 %COLS%
 ],
