@@ -213,6 +213,16 @@ export var configSchema = {
               ""
             ],
             "pattern": "^(.*)$"
+          },
+          "styleByMeasure": {
+            "$id": "#/properties/columns/items/properties/styleByMeasure",
+            "type": "string",
+            "title": "Format",
+            "default": "",
+            "examples": [
+              "[MyStyleMeasure]"
+            ],
+            "pattern": "^(.*)$"
           }
         }
       }
@@ -357,6 +367,15 @@ export var configSchema = {
       "default": "",
       "examples": [
         "en-US", "sv-SE"
+      ]
+    },
+    "alternatingRowStyle": {
+      "$id": "#/properties/alternatingRowStyle",
+      "type": "string",
+      "title": "Alternating row style",
+      "default": "",
+      "examples": [
+        "background-color:#abc"
       ]
     }
   }

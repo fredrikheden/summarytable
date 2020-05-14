@@ -57,8 +57,7 @@ import { RendererEditMode } from "./rendererEditMode";
 
     var tblData = [];
     thisRef.tableDefinitionFromDataset = null;
-    for( var i = 0; i < dataViews[0].table.rows.length; i++) {
-        var r = dataViews[0].table.rows[i];
+    for( let r of dataViews[0].table.rows) {
         var colData  = [];
         for(var t = 0; t<r.length; t++) {
             var rawValue =  r[t];
@@ -69,12 +68,12 @@ import { RendererEditMode } from "./rendererEditMode";
             } else {
                 var formatString =  dataViews[0].table.columns[t].format;
                 var isColumnNumeric = dataViews[0].table.columns[t].type.numeric;
-                colData.push( { rawValue: rawValue, formatString: formatString, displayName: columnName, refName: "[" + columnName + "]", isNumeric: isColumnNumeric  } );
+                colData.push( { rawValue, formatString, displayName: columnName, refName: "[" + columnName + "]", isNumeric: isColumnNumeric  } );
             }
         }
         var row = {
-            title : dataViews[0].table.rows[i][0],
-            name : "[" + dataViews[0].table.rows[i][0] + "]",
+            title : r[0],
+            name : "[" + r[0] + "]",
             values: colData,
         };
         tblData.push(row);

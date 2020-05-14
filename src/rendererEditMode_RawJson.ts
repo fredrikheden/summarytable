@@ -6,7 +6,7 @@ import { RendererEditMode } from "./rendererEditMode";
 import { VisualSettings } from "./settings";
 import * as Utils from "./jsUtils";
 
-export class RendererEditMode_RawJson {
+export class RendererEditModeRawJson {
     private rendererEditModeBase: RendererEditMode;
     private rawEditor: HTMLTextAreaElement
 
@@ -41,18 +41,18 @@ export class RendererEditMode_RawJson {
             txtEditor.value = this.rendererEditModeBase.GetTemplateFromFieldList();
         }
         
-        txtEditor.onkeydown = function(e){
-            if(e.keyCode==9 || e.which==9){
+        txtEditor.onkeydown = (e) => {
+            if(e.keyCode===9 || e.which===9){
                 e.preventDefault();
                 var s = txtEditor.selectionStart;
                 txtEditor.value = txtEditor.value.substring(0,txtEditor.selectionStart) + "\t" + txtEditor.value.substring(txtEditor.selectionEnd);
                 txtEditor.selectionEnd = s+1;
             }
         }
-        txtEditor.onkeyup = function(e){
+        txtEditor.onkeyup = (e) => {
             try {
-                var tableDefTmp = JSON.parse(txtEditor.value);
-                that.rendererEditModeBase.renderer.RenderAllContent(divRenderInEditMode, tableDefTmp);    
+                var tableDefTmp1 = JSON.parse(txtEditor.value);
+                that.rendererEditModeBase.renderer.RenderAllContent(divRenderInEditMode, tableDefTmp1);    
             } 
             catch(e) {
                 Utils.clearHtmlElement(divRenderInEditMode);
@@ -61,11 +61,11 @@ export class RendererEditMode_RawJson {
         }
         
         var that = this;
-        this.rendererEditModeBase.btnLoadFromFieldList.onclick = function(e) {
+        this.rendererEditModeBase.btnLoadFromFieldList.onclick = (e) => {
             txtEditor.value = that.rendererEditModeBase.GetTemplateFromFieldList();
             txtEditor.onkeyup(null);
         }
-         this.rendererEditModeBase.btnSave.onclick = function(e) {
+         this.rendererEditModeBase.btnSave.onclick = (e) => {
             that.rendererEditModeBase.Save(settings,  txtEditor.value);
         }
 

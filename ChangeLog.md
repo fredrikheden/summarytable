@@ -1,6 +1,8 @@
 # Change Log
 
 ## Version v3.1.0 (not published yet)
+* Added support for dynamic styling from a measure (property styeByMeasure).
+* Added support for alternating rows (alternatingRowStyle property)
 * Added support for direct columns reference from rows (directColumnRef property).
 * Added support for hidden columns (hidden property).
 * Added support for hidden columns in specific rows (hideForColumns property).

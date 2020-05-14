@@ -30,18 +30,16 @@ The abone image shows a summary table with an income statement with yellow highl
 		"headerStyle": "background-color:#000000;color:#fff;padding:5px",
 		"borderStyle": "border:1px solid #000000"
 	},
-	"culture": "en-US"
+	"culture": "en-US",
+	"alternatingRowStyle": "background-color:#F8FaFd"
 }
 ```
 * **displayAllRows** - if this property is set to true all visible header rows will be shown, even if they contain no data.
-
 * **additionalWidth** - additional width to add to the containing table. This property needs to be set is using borders on the columns. Add the total amount of horizontal border width to this cell.
-
 * **reusableCSS** - a way to define a css string that is reusable in all the style properties.
-
 * **masterHeader** - this property can be used to create a border and master header for the whole table. If no header/border are to be used, skip this property.
-
 * **culture** - this property is currently not working due to a bug in the Power BI Custom Visual API.
+* **alternatingRowStyle** - optional style property that will be applied to every other row is used.
 
 ### Define columns - `columns`
 #### Example
@@ -55,7 +53,8 @@ The abone image shows a summary table with an income statement with yellow highl
 	"title": "Amounts in k$",
 	"calculationFormula": "", 
 	"format": "",
-	"hidden": false
+	"hidden": false,
+	"styeByMeasure": "[AccountGroupStyle]"
 }
 ```
 
@@ -69,6 +68,7 @@ The abone image shows a summary table with an income statement with yellow highl
 * **calculationFormula** - the formula that should be applied when using the Calculation type. E.g. "[Savings SEK]/[Spend SEK]". Measures are referenced betweeen brackets ([]). Any formula and operator that can be evaluated using javaScript kan be used.
 * **format** - the formatting that should be applied when rendered. E.g. "#,0" and "0.0 %;-0.0 %;0.0 %".
 * **hidden** - if this property is set to true, the column will not be displayed (can be useful when rows are referencing columns directly).
+* **styeByMeasure** - this optional property can be used to set the style of the current column dynamically from the DAX measure. Note that there has to be a (hidden) column defined to encapsulates the referenced measure before it can be used. This can typically be used to color code KPI measures.
 
 ### Define rows - `rows`
 #### Example
@@ -86,9 +86,8 @@ The abone image shows a summary table with an income statement with yellow highl
 		{
 				"columnRefName": "[Budget]",
 				"columnReplaceRefName": "[Custom measure %]"
-			}
-	]	
-
+		}
+	]
 }
 ```
 
@@ -101,7 +100,7 @@ The abone image shows a summary table with an income statement with yellow highl
 * **cellRowDataStyle** - the css style of the row data columns header (all columns except the first one).
 * **format** - optional formatting that should be applied to the whole row when rendered. E.g. "#,0" and "0.0 %;-0.0 %;0.0 %". 
 * **hideForColumns** - if the refName of the columns is listed here the column will display a blank value.
-* **directColumnRef** - optional property that, when used, will replace a specific column value with another column value.
+* **directColumnRef** - optional property that, when used, will replace a specific column value with another column value. Note that the (hidden) column has to be defined before it can be used.
 
 ### Define header row style - `headerRow`
 #### Example

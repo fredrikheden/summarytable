@@ -8,7 +8,7 @@ import * as Utils from "./jsUtils";
 import * as JSONEditor from "@json-editor/json-editor"
 import { configSchema } from './configSchema';
 
-export class RendererEditMode_Designer {
+export class RendererEditModeDesigner {
     private rendererEditModeBase: RendererEditMode;
 
     constructor(editor: RendererEditMode) {
@@ -36,25 +36,25 @@ export class RendererEditMode_Designer {
                 startval: tableConfigOject
             });
             var that = this;
-            jsoneditor.on('change', function () {
+            jsoneditor.on('change',  () => {
                 var tableConfig = jsoneditor.getValue();
                 settings.dataPoint.tableConfiguration = JSON.stringify(tableConfig);
                 that.rendererEditModeBase.renderer.RenderAllContent(divRenderInEditMode, tableConfig); 
-                //var validation_errors = jsoneditor.validate();
+                // var validation_errors = jsoneditor.validate();
                 // Show validation errors if there are any           
             });
 
         } catch (e) {
-            console.log(e);
+            // console.log(e);
         }
 
         var that = this;
-        this.rendererEditModeBase.btnLoadFromFieldList.onclick = function(e) {
+        this.rendererEditModeBase.btnLoadFromFieldList.onclick = (e) => {
             var tmpTableConfig = that.rendererEditModeBase.GetTemplateFromFieldList();
             settings.dataPoint.tableConfiguration=tmpTableConfig;
             jsoneditor.setValue(JSON.parse(tmpTableConfig));
         }
-         this.rendererEditModeBase.btnSave.onclick = function(e) {
+         this.rendererEditModeBase.btnSave.onclick = (e) => {
             that.rendererEditModeBase.Save(settings,  settings.dataPoint.tableConfiguration);
         }
         target.appendChild(divEditor);

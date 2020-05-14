@@ -56,7 +56,7 @@ export class Renderer {
             format = row.format;
         }
         var formattedValue = this.FormatValue(rawValue, format);
-        return { formattedValue, rawValue };
+        return { formattedValue, rawValue, modelRawValue };
     }
 
     private FormatValue(rawValue, format) {
@@ -319,6 +319,10 @@ export class Renderer {
         }
         cellContents.renderValue = renderValue;
         cellContents.cellRowDataStyle = cellRowDataStyle;
+        cellContents.styleByMeasure = null;
+        if ( typeof col.styleByMeasure !== 'undefined' && col.styleByMeasure.length > 0) {
+            cellContents.styleByMeasure = col.styleByMeasure
+        }
         return cellContents;
     }
 
@@ -344,10 +348,11 @@ export class Renderer {
             }
         }
 
-        if ( hasNonNumeric ) {
-            this.RenderNonNumericColumns(targetElement);
-            return;
-        }
+        // Denna är kommenterad så att vi kan tillåta mätvärden som är strängar.
+        // if ( hasNonNumeric ) {
+        //    this.RenderNonNumericColumns(targetElement);
+        //    return;
+        // }
 
         // Table border
         var customTableStyle = "";
@@ -404,6 +409,7 @@ export class Renderer {
             }
         }
 
+        var rowWithContentsCounter = 0;
         // Table rows
         for(var r=0; r<this.tableDefinition.rows.length; r++) {
             var row = this.tableDefinition.rows[r];
@@ -423,22 +429,25 @@ export class Renderer {
                 cellRowDataStyle = cellContents.cellRowDataStyle;
                 allColumnsAreBlank = cellContents.allColumnsAreBlank;
 
-                // Check if we have a direct column reference
-                var shouldReplaceValue = false;
-                var replaceWithColumn = "";
+                // Check if we have a direct column reference (replace with another column)
                 if ( typeof row.directColumnRef !== 'undefined' ) {
                     for(var i=0;i < row.directColumnRef.length; i++ ) {
                         if ( row.directColumnRef[i].columnRefName === col.refName ) {
-                            shouldReplaceValue = true;
-                            replaceWithColumn = row.directColumnRef[i].columnReplaceRefName;
+                            var replaceWithColumn = row.directColumnRef[i].columnReplaceRefName;
+                            var replaceCol = this.tableDefinition.columns.filter( a=> a.refName === replaceWithColumn )[0];
+                            cellContents = this.getCellContents(replaceCol, row, allColumnsAreBlank, cellRowDataStyle);
                             break;
                         }
-                    }
+                    } 
                 }
-                if ( shouldReplaceValue) {
-                    var replaceCol = this.tableDefinition.columns.filter( a=> a.refName === replaceWithColumn )[0];
-                    cellContents = this.getCellContents(replaceCol, row, allColumnsAreBlank, cellRowDataStyle);
-                }
+
+                // Dynamic style handling (styeByMeasure)
+                if ( cellContents.styleByMeasure !== null )
+                {
+                    var colStyle = this.tableDefinition.columns.filter( a=> a.refName === cellContents.styleByMeasure )[0];
+                    var colStyleContents = this.getCellContents(colStyle, row, allColumnsAreBlank, cellRowDataStyle);
+                    rowStyle = rowStyle + ";" + colStyleContents.modelRawValue + ";";
+                } 
 
                 rowCols.push( cellContents );
                 var renderValue = cellContents.renderValue;
@@ -496,6 +505,18 @@ export class Renderer {
                 } else {
                     // Do nothing
                 }
+            }
+
+            // Alternating rows.
+            if ( row.visible && !allColumnsAreBlank && row.formula !== ""  ) {
+                if ( rowWithContentsCounter % 2 === 1 ) {
+                    if ( typeof(this.tableDefinition.alternatingRowStyle) !== 'undefined') {
+                        let currStyle = dRow.getAttribute("style");
+                        dRow.setAttribute("style", currStyle + ";" + this.tableDefinition.alternatingRowStyle + ";");
+                    }
+                }
+    
+                rowWithContentsCounter ++;
             }
         }        
         // tableHtml += "</div></div>";

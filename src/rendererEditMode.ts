@@ -4,8 +4,8 @@ import { Visual } from './visual';
 import { Renderer } from "./renderer";
 import { VisualSettings } from "./settings";
 import * as Utils from "./jsUtils";
-import { RendererEditMode_Designer } from "./rendererEditMode_Designer";
-import { RendererEditMode_RawJson } from "./rendererEditMode_RawJson";
+import { RendererEditModeDesigner } from "./rendererEditMode_Designer";
+import { RendererEditModeRawJson } from "./rendererEditMode_RawJson";
 
 export class RendererEditMode {
     public visual: Visual;
@@ -91,13 +91,13 @@ export class RendererEditMode {
 
         if ( this.designMode ) {
             // Render design mode editor here
-            var EditModeDesigner = new RendererEditMode_Designer(this);
+            var EditModeDesigner = new RendererEditModeDesigner(this);
             EditModeDesigner.RenderEditMode_Designer(this.editorContainer, settings);
             this.EditModeRenderer = EditModeDesigner;
         }
         else {
             // Render raw json editor here
-            var EditModeRawJson = new RendererEditMode_RawJson(this);
+            var EditModeRawJson = new RendererEditModeRawJson(this);
             EditModeRawJson.RenderEditMode_RawJson(this.editorContainer, settings);
             this.EditModeRenderer = EditModeRawJson;
         }
