@@ -215,7 +215,8 @@ export class Renderer {
         i1 = title.indexOf("eval(", 0);
         i2 = title.lastIndexOf(")");
         var v = title.substring(i1+5, i2);
-        var vEvaluated = title.substring(0, i1) + eval(v) + title.substring(i2+1);
+        // var vEvaluated = title.substring(0, i1) + eval(v) + title.substring(i2+1);
+        var vEvaluated = title.substring(0, i1) + Calculator.EvalFormula(v) + title.substring(i2+1);
         return vEvaluated.trim();
     }
 
@@ -435,11 +436,13 @@ export class Renderer {
                         if ( row.directColumnRef[i].columnRefName === col.refName ) {
                             var replaceWithColumn = row.directColumnRef[i].columnReplaceRefName;
                             var replaceCol = this.tableDefinition.columns.filter( a=> a.refName === replaceWithColumn )[0];
-                            cellContents = this.getCellContents(replaceCol, row, allColumnsAreBlank, cellRowDataStyle);
-                            break;
+                            if ( typeof replaceCol !== 'undefined' ) {
+                                cellContents = this.getCellContents(replaceCol, row, allColumnsAreBlank, cellRowDataStyle);
+                                break;
+                            }
                         }
                     } 
-                }
+                } 
 
                 // Dynamic style handling (styeByMeasure)
                 if ( cellContents.styleByMeasure !== null )
