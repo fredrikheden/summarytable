@@ -87,7 +87,7 @@ export class Visual implements IVisual {
     private tableDefinition: any;
     private model: any;
     public host: any;
-    private internalVersionNo: string = "3.1.0";
+    private internalVersionNo: string = "3.1.1";
     public tableDefinitionFromDataset: any;
     private renderer: Renderer;
     private rendererEditMode: RendererEditMode;
