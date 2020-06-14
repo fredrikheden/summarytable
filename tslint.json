@@ -4,8 +4,7 @@
         "node_modules/tslint-microsoft-contrib"
     ],
     "rules": {
-    "prefer-const": false,
-    "no-var-keyword": false,
-    "no-trailing-whitespace": false
-   }
+        "no-var-keyword": false,
+        "no-trailing-whitespace": false
+    }
 }
