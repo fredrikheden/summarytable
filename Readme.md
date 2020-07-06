@@ -117,3 +117,4 @@ The abone image shows a summary table with an income statement with yellow highl
 * Hover-effects are not supported.
 * Expression-based css styles are not supported (e.g. settings a background color based on an expression).
 * Cross-filtering other visuals (by clicking on a row) is not supported.
+* If a directColRef (replace a value) is used, subsequent references to the replaced value is not supported.
