@@ -65,7 +65,7 @@ The abone image shows a summary table with an income statement with yellow highl
 * **type** - the type of column. Valid values are RowHeader, Data and Calculation. RowHeader is used for the first column that contains the header for each row. Data is used for a column that is bound to a measure. Calculation is used when a specific calculation should be applied at render-time.
 * **refName** - the name of the data bound measure/attribute. Only applicable when using RowHeader and Calculcation type.
 * **title** - the displayed title of the column. References to measures can be done by using 
-(). To reference a measure called year can be made by writing "eval([Year])". If the measure returns a string you need to use the following syntax: eval(\"[MyStringMeasure]\").
+(). To reference a measure called year can be made by writing "eval([Year])". If the measure returns a string you need to use the following syntax: eval(\\"[MyStringMeasure]\\").
 * **calculationFormula** - the formula that should be applied when using the Calculation type. E.g. "[Savings SEK]/[Spend SEK]". Measures are referenced betweeen brackets ([]). Any formula and operator that can be evaluated using javaScript kan be used.
 * **format** - the formatting that should be applied when rendered. E.g. "#,0" and "0.0 %;-0.0 %;0.0 %".
 * **hidden** - if this property is set to true, the column will not be displayed (can be useful when rows are referencing columns directly).
