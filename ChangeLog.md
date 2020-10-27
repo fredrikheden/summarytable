@@ -1,7 +1,7 @@
 # Change Log
 
 ## Version v3.1.1 (not published yet)
-
+* Bugfix of referenced rows not displaying columns in the correct order.
 
 ## Version v3.1.0
 * Added support for dynamic styling from a measure (property styeByMeasure).

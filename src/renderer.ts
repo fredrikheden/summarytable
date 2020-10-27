@@ -31,11 +31,13 @@ export class Renderer {
         target.appendChild(t);
     }
 
-    private GetValueForColumnRowCalculationByIndex(row:any, colIndex: number, colDef: any) : any {
+    private GetValueForColumnRowCalculationByIndex(row:any, colIndex: number, colDef: any, modelRow: any) : any {
         var model = this.visual.getModel();
 
         // Till denna funktion kommer vi en gång per beräknad rad.
+        
         var fExpression = row.formula;
+
         for( let m of model ) {
             // Gå igenom varje rad i modellen för att hitta referenser
             if ( row.formula !== null && m.name !== null) {
@@ -48,7 +50,8 @@ export class Renderer {
         }
 
         var rawValue = Calculator.EvalFormula( fExpression );
-        var format = model[0].values[colIndex].formatString;
+        var format = modelRow.values[colIndex].formatString;
+        
         if ( Utils.containsValue(colDef.format) ) { // Only use column formatting if it is defined
             format = colDef.format;
         }
@@ -56,7 +59,8 @@ export class Renderer {
             format = row.format;
         }
         var formattedValue = this.FormatValue(rawValue, format);
-        return { formattedValue, rawValue, modelRawValue };
+
+        return { formattedValue, rawValue, modelRawValue, format };
     }
 
     private FormatValue(rawValue, format) {
@@ -80,19 +84,31 @@ export class Renderer {
 
     private GetValueForColumnRowCalculationByName(row:any, colDef: any) : any {
         var model = this.visual.getModel();
-
         var colNameWithBrackets = colDef.refName;
         var rawValue = 0;
         var colIndex = -1;
-        for(var i=0; i<model[0].values.length; i++) {
-            if ( model[0].values[i].refName === colNameWithBrackets ) {
+        var modelRow = model[0];
+        for( let m of model ) {
+            // Gå igenom varje rad i modellen för att hitta referenser
+            if ( row.formula !== null && m.name !== null) {
+                var iPos = row.formula.toLowerCase().indexOf( m.name.toLowerCase() );
+                if (  iPos !== -1 ) {
+                    // Vi har hittat raden
+                    modelRow = m;
+                    break;
+                }
+            }
+        }      
+
+        for(var i=0; i<modelRow.values.length; i++) {
+            if ( modelRow.values[i].refName === colNameWithBrackets ) {
                 colIndex = i;
                 break;
             }
         }
         var retValue = null;
-        if ( colIndex !== -1 ) {
-            retValue = this.GetValueForColumnRowCalculationByIndex(row, colIndex, colDef);
+        if ( colIndex !== -1 && typeof( colIndex ) !== "undefined" ) {
+            retValue = this.GetValueForColumnRowCalculationByIndex(row, colIndex, colDef, modelRow);
         } else {
             retValue = {
                 formattedValue: "(Unknown column)", rawValue: null 
@@ -492,13 +508,14 @@ export class Renderer {
                 var newTitle = row.title;
                 var newName = "[" + newTitle + "]";
                 for( var c=0; c<rowCols.length; c++) {
-                    rowCols[c].displayName = newTitle;
-                    rowCols[c].refName = newName;
-                }
+                    rowCols[c].displayName = newTitle; 
+                    rowCols[c].refName = this.tableDefinition.columns[c].refName; 
+                    rowCols[c].formatString = rowCols[c].format;
+                } 
                 var newModelRow = { 
                     name: newName,
                     title: newTitle,
-                    values: rowCols
+                    values: rowCols 
                 };
                 model.push(newModelRow);
             }
