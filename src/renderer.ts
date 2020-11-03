@@ -34,8 +34,7 @@ export class Renderer {
     private GetValueForColumnRowCalculationByIndex(row:any, colIndex: number, colDef: any, modelRow: any) : any {
         var model = this.visual.getModel();
 
-        // Till denna funktion kommer vi en gång per beräknad rad.
-        
+        // Till denna funktion kommer vi en gång per beräknad rad.       
         var fExpression = row.formula;
 
         for( let m of model ) {
@@ -48,7 +47,7 @@ export class Renderer {
                 }
             }
         }
-
+        
         var rawValue = Calculator.EvalFormula( fExpression );
         var format = modelRow.values[colIndex].formatString;
         

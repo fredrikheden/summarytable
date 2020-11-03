@@ -18,7 +18,7 @@ export function containsValue(v) {
 
 export function replace2(str, strToFind, strToReplace) {
     const strR = strToReplace;
-    const strF = strToFind.replace("[", "\\[", "g").replace("]", "\\]", "g").replace(")", "\\)", "g").replace("(", "\\(", "g");
+    const strF = strToFind.replace("[", "\\[", "g").replace("]", "\\]", "g").replace(")", "\\)", "g").replace("(", "\\(", "g").replace("+", "\\+", "g");
     const regEx = new RegExp(strF, "ig");       
     const result = str.replace(regEx, strR);
     return result;
