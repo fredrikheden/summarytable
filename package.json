@@ -14,7 +14,7 @@
     "@types/d3": "5.5.0",
     "bootstrap-css-only": "^4.3.1",
     "core-js": "^3.6.5",
-    "d3": "5.5.0",
+    "d3": "7.6.1",
     "powerbi-visuals-api": "^2.6.2",
     "powerbi-visuals-utils-dataviewutils": "^2.2.0",
     "powerbi-visuals-utils-formattingutils": "^4.3.1"
